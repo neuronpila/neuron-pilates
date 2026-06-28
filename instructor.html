@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#1A5C3A">
+<title>뉴런필라테스 강사</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap');
+:root{
+  --green:#1A5C3A; --green2:#2A7A5A; --green-light:#7ECBA0; --green-pale:#E8F5EE;
+  --stone:#2E2E2B; --mid:#6B6B68; --cream:#F7F5F1; --white:#FDFCFA;
+  --gold:#C4A055; --red:#D9634E; --blue:#5B8DB8;
+  --shadow:rgba(26,92,58,0.12); --radius:16px;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--cream);color:var(--stone);min-height:100vh;max-width:430px;margin:0 auto;}
+.header{background:linear-gradient(135deg,var(--stone),#3A3A37);color:white;padding:14px 18px;position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;}
+.header-left{display:flex;align-items:center;gap:10px;}
+.header-logo{width:32px;height:32px;object-fit:contain;}
+.header-title{font-size:16px;font-weight:700;}
+.header-sub{font-size:10px;color:var(--green-light);margin-top:1px;}
+.header-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--green2),var(--gold));display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:white;cursor:pointer;flex-shrink:0;}
+.bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:var(--white);border-top:1px solid rgba(0,0,0,0.08);display:flex;z-index:100;padding-bottom:env(safe-area-inset-bottom);}
+.nav-btn{flex:1;padding:10px 2px 8px;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;border:none;background:none;font-family:'Noto Sans KR',sans-serif;color:var(--mid);transition:color 0.2s;}
+.nav-btn.active{color:var(--green2);}
+.nav-icon{font-size:20px;}
+.nav-label{font-size:10px;font-weight:500;}
+.content{padding:0 0 80px;}
+.panel{display:none;}
+.panel.active{display:block;}
+.today-strip{background:linear-gradient(135deg,var(--green),var(--green2));color:white;padding:16px 18px;display:flex;align-items:center;justify-content:space-between;}
+.section{padding:14px 14px 0;}
+.section-title{font-size:12px;font-weight:700;color:var(--mid);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;}
+.section-title span{font-size:12px;color:var(--green2);font-weight:600;text-transform:none;letter-spacing:0;cursor:pointer;}
+.stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px;}
+.stat-card{background:var(--white);border-radius:var(--radius);padding:14px 10px;text-align:center;box-shadow:0 2px 10px var(--shadow);}
+.stat-num{font-size:28px;font-weight:700;color:var(--stone);line-height:1;}
+.stat-lbl{font-size:10px;color:var(--mid);margin-top:4px;}
+.stat-badge{font-size:10px;color:var(--green2);margin-top:2px;font-weight:600;}
+.class-list{display:flex;flex-direction:column;gap:10px;}
+.class-card{background:var(--white);border-radius:var(--radius);padding:14px 16px;box-shadow:0 2px 10px var(--shadow);display:flex;align-items:center;gap:12px;cursor:pointer;transition:transform 0.15s;}
+.class-card:active{transform:scale(0.98);}
+.class-time-badge{min-width:50px;text-align:center;background:var(--green-pale);border-radius:10px;padding:8px 4px;}
+.class-time{font-size:13px;font-weight:700;color:var(--green2);}
+.class-ampm{font-size:10px;color:var(--green-light);}
+.class-info{flex:1;}
+.class-name{font-size:14px;font-weight:600;}
+.class-detail{font-size:11px;color:var(--mid);margin-top:2px;}
+.class-status{font-size:10px;padding:4px 10px;border-radius:20px;font-weight:600;white-space:nowrap;}
+.status-soon{background:var(--green-pale);color:var(--mid);}
+.status-now{background:#FFF3E0;color:#D07030;}
+.member-list{display:flex;flex-direction:column;gap:8px;}
+.member-card{background:var(--white);border-radius:var(--radius);padding:14px 16px;box-shadow:0 2px 8px var(--shadow);display:flex;align-items:center;gap:12px;cursor:pointer;transition:transform 0.15s;}
+.member-card:active{transform:scale(0.98);}
+.m-avatar{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--green-pale),var(--green-light));display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:var(--green);flex-shrink:0;}
+.m-info{flex:1;}
+.m-name{font-size:14px;font-weight:600;}
+.m-detail{font-size:11px;color:var(--mid);margin-top:2px;}
+.m-tag{font-size:10px;padding:3px 8px;border-radius:10px;background:var(--green-pale);color:var(--green2);font-weight:500;white-space:nowrap;}
+.att-class-selector{background:var(--white);margin:14px;border-radius:var(--radius);padding:4px;display:flex;gap:4px;box-shadow:0 2px 8px var(--shadow);flex-wrap:wrap;}
+.att-class-btn{flex:1;min-width:70px;padding:8px 4px;border:none;border-radius:12px;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:500;cursor:pointer;transition:all 0.2s;background:transparent;color:var(--mid);}
+.att-class-btn.active{background:var(--green2);color:white;}
+.att-row{background:var(--white);border-radius:var(--radius);padding:14px 16px;box-shadow:0 2px 8px var(--shadow);display:flex;align-items:center;gap:12px;}
+.att-info{flex:1;}
+.att-name{font-size:14px;font-weight:600;}
+.att-sub{font-size:11px;color:var(--mid);margin-top:2px;}
+.att-btns{display:flex;gap:6px;}
+.att-btn{padding:7px 14px;border-radius:20px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.2s;}
+.att-o{background:var(--green2);color:white;}
+.att-x{background:#FDECEA;color:var(--red);}
+.att-off{background:var(--cream);color:var(--mid);}
+.fb-card{background:var(--white);border-radius:var(--radius);padding:14px 16px;box-shadow:0 2px 8px var(--shadow);cursor:pointer;transition:transform 0.15s;}
+.fb-card:active{transform:scale(0.98);}
+.fb-header{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.fb-avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--green-pale),var(--green-light));display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--green);flex-shrink:0;}
+.fb-name{font-size:14px;font-weight:600;}
+.fb-class{font-size:11px;color:var(--mid);}
+.chip-row{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px;}
+.chip{padding:4px 9px;border-radius:10px;font-size:11px;font-weight:500;}
+.chip-green{background:var(--green-pale);color:var(--green2);}
+.chip-blue{background:#E8EEF8;color:var(--blue);}
+.fb-preview{font-size:12px;color:var(--mid);line-height:1.5;}
+.fb-new{font-size:10px;background:var(--red);color:white;padding:2px 7px;border-radius:10px;}
+.form-group{margin-bottom:14px;}
+.form-label{font-size:12px;font-weight:600;color:var(--mid);margin-bottom:6px;display:block;}
+.form-input{width:100%;padding:12px 14px;border:1.5px solid rgba(0,0,0,0.10);border-radius:12px;font-size:14px;font-family:'Noto Sans KR',sans-serif;background:var(--white);color:var(--stone);transition:border-color 0.2s;}
+.form-input:focus{outline:none;border-color:var(--green2);}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.btn-full{width:100%;padding:14px;background:var(--green2);color:white;border:none;border-radius:14px;font-family:'Noto Sans KR',sans-serif;font-size:15px;font-weight:700;cursor:pointer;margin-top:8px;}
+.btn-full:active{background:var(--green);}
+.btn-outline-full{width:100%;padding:12px;background:transparent;color:var(--green2);border:1.5px solid var(--green2);border-radius:14px;font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:600;cursor:pointer;margin-top:8px;}
+.fab{position:fixed;bottom:90px;right:16px;width:52px;height:52px;border-radius:50%;background:var(--green2);color:white;border:none;font-size:24px;box-shadow:0 4px 16px rgba(42,122,90,0.5);cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:90;}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:200;align-items:flex-end;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--white);border-radius:24px 24px 0 0;padding:24px 20px 44px;width:100%;max-width:430px;max-height:90vh;overflow-y:auto;}
+.modal-handle{width:40px;height:4px;border-radius:2px;background:rgba(0,0,0,0.15);margin:0 auto 20px;}
+.modal-title{font-size:18px;font-weight:700;margin-bottom:16px;}
+.body-part-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;}
+.body-btn{padding:10px 4px;border:1.5px solid rgba(0,0,0,0.10);border-radius:12px;background:var(--white);font-family:'Noto Sans KR',sans-serif;font-size:12px;cursor:pointer;text-align:center;transition:all 0.2s;color:var(--mid);}
+.body-btn.active{border-color:var(--green2);background:var(--green-pale);color:var(--green2);font-weight:700;}
+.cond-row{display:flex;gap:8px;margin-bottom:14px;}
+.cond-btn{flex:1;padding:10px 4px;border:1.5px solid rgba(0,0,0,0.10);border-radius:12px;background:var(--white);font-family:'Noto Sans KR',sans-serif;font-size:12px;cursor:pointer;text-align:center;transition:all 0.2s;color:var(--mid);}
+.cond-btn.active{border-color:var(--green2);background:var(--green-pale);color:var(--green2);font-weight:700;}
+.rating-row{display:flex;gap:6px;margin-bottom:14px;}
+.rating-star{font-size:28px;cursor:pointer;}
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(10px);background:var(--stone);color:white;padding:12px 20px;border-radius:12px;font-size:13px;white-space:nowrap;opacity:0;transition:all 0.25s;z-index:300;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.empty{text-align:center;padding:36px 20px;color:var(--mid);}
+.empty-icon{font-size:44px;margin-bottom:10px;}
+.empty-text{font-size:13px;}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="header-left">
+    <img class="header-logo" src="logo.png" alt="logo">
+    <div>
+      <div class="header-title">뉴런필라테스</div>
+      <div class="header-sub" id="headerDate"></div>
+    </div>
+  </div>
+  <div class="header-avatar" id="instructorAvatar">김</div>
+</div>
+
+<div class="content">
+  <!-- 홈 -->
+  <div class="panel active" id="panel-home">
+    <div class="today-strip">
+      <div>
+        <div style="font-size:12px;opacity:0.8;" id="todayDateStr"></div>
+        <div style="font-size:16px;font-weight:700;margin-top:2px;">오늘 수업 <span id="todayCount">0</span>개</div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-size:11px;opacity:0.75;">다음 수업</div>
+        <div style="font-size:15px;font-weight:700;" id="nextClassInfo">-</div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="stat-row">
+        <div class="stat-card"><div class="stat-num" id="statMembers">0</div><div class="stat-lbl">전체 회원</div></div>
+        <div class="stat-card"><div class="stat-num" id="statToday">0</div><div class="stat-lbl">오늘 출석</div><div class="stat-badge" id="statRate"></div></div>
+        <div class="stat-card"><div class="stat-num" id="statFb">0</div><div class="stat-lbl">미작성 피드백</div></div>
+      </div>
+      <div class="section-title">오늘 수업 <span onclick="switchTab('schedule')">전체 보기</span></div>
+      <div class="class-list" id="todayClasses"></div>
+    </div>
+    <div class="section" style="margin-top:14px;">
+      <div class="section-title">최근 피드백 <span onclick="switchTab('feedback')">전체 보기</span></div>
+      <div id="recentFb" style="display:flex;flex-direction:column;gap:8px;"></div>
+    </div>
+  </div>
+
+  <!-- 회원 -->
+  <div class="panel" id="panel-members">
+    <div style="padding:14px 14px 0;">
+      <input class="form-input" type="search" placeholder="🔍 회원 이름 검색..." id="memberSearch" oninput="renderMembers(this.value)" style="margin-bottom:12px;">
+    </div>
+    <div class="section">
+      <div class="section-title">전체 회원 <span id="memberCount" style="color:var(--green2);font-weight:700;cursor:default;"></span></div>
+      <div class="member-list" id="memberListEl"></div>
+    </div>
+  </div>
+
+  <!-- 출석 -->
+  <div class="panel" id="panel-attendance">
+    <div class="att-class-selector" id="attSelector"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:0 14px 10px;">
+      <span style="font-size:12px;color:var(--mid);" id="attSummary"></span>
+      <button class="att-btn att-o" style="font-size:11px;padding:6px 12px;" onclick="markAllPresent()">전체 출석</button>
+    </div>
+    <div style="padding:0 14px;display:flex;flex-direction:column;gap:8px;" id="attList"></div>
+  </div>
+
+  <!-- 피드백 -->
+  <div class="panel" id="panel-feedback">
+    <div class="section">
+      <div class="section-title">오늘 피드백 현황</div>
+      <div style="display:flex;flex-direction:column;gap:8px;" id="feedbackList"></div>
+    </div>
+  </div>
+
+  <!-- 일정 -->
+  <div class="panel" id="panel-schedule">
+    <div class="section">
+      <div class="section-title">수업 일정</div>
+      <div class="class-list" id="scheduleList"></div>
+    </div>
+    <div style="padding:14px;"><button class="btn-full" onclick="openModal('addClassModal')">+ 수업 추가</button></div>
+  </div>
+</div>
+
+<button class="fab" id="fabBtn" onclick="onFab()" style="display:none;">+</button>
+
+<nav class="bottom-nav">
+  <button class="nav-btn active" onclick="switchTab('home')" id="tab-home"><span class="nav-icon">🏠</span><span class="nav-label">홈</span></button>
+  <button class="nav-btn" onclick="switchTab('members')" id="tab-members"><span class="nav-icon">👥</span><span class="nav-label">회원</span></button>
+  <button class="nav-btn" onclick="switchTab('attendance')" id="tab-attendance"><span class="nav-icon">✅</span><span class="nav-label">출석</span></button>
+  <button class="nav-btn" onclick="switchTab('feedback')" id="tab-feedback"><span class="nav-icon">💬</span><span class="nav-label">피드백</span></button>
+  <button class="nav-btn" onclick="switchTab('schedule')" id="tab-schedule"><span class="nav-icon">📅</span><span class="nav-label">일정</span></button>
+</nav>
+
+<!-- 회원 추가 모달 -->
+<div class="modal-overlay" id="addMemberModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">회원 추가</div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">이름</label><input class="form-input" id="nName" placeholder="홍길동"></div>
+      <div class="form-group"><label class="form-label">연락처</label><input class="form-input" id="nPhone" placeholder="010-0000-0000" type="tel"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">수강 클래스</label>
+        <select class="form-input" id="nClass"><option>기초 필라테스</option><option>코어 강화</option><option>바디밸런스</option><option>저녁 플로우</option></select>
+      </div>
+      <div class="form-group"><label class="form-label">등록일</label><input class="form-input" id="nDate" type="date"></div>
+    </div>
+    <div class="form-group"><label class="form-label">특이사항 / 건강 상태</label><textarea class="form-input" id="nNote" rows="2" placeholder="예: 허리 디스크, 무릎 약함"></textarea></div>
+    <button class="btn-full" onclick="addMember()">회원 등록</button>
+    <button class="btn-outline-full" onclick="closeModal('addMemberModal')">취소</button>
+  </div>
+</div>
+
+<!-- 회원 상세 모달 -->
+<div class="modal-overlay" id="memberDetailModal">
+  <div class="modal"><div class="modal-handle"></div><div id="memberDetailContent"></div><button class="btn-outline-full" onclick="closeModal('memberDetailModal')">닫기</button></div>
+</div>
+
+<!-- 피드백 작성 모달 -->
+<div class="modal-overlay" id="feedbackModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="fbModalTitle">피드백 작성</div>
+    <div class="form-group"><label class="form-label">오늘 컨디션</label>
+      <div class="cond-row">
+        <button class="cond-btn" onclick="selCond(this,'😄 좋음')">😄 좋음</button>
+        <button class="cond-btn" onclick="selCond(this,'😐 보통')">😐 보통</button>
+        <button class="cond-btn" onclick="selCond(this,'😔 피로')">😔 피로</button>
+      </div>
+    </div>
+    <div class="form-group"><label class="form-label">집중 부위</label>
+      <div class="body-part-grid">
+        <button class="body-btn" onclick="togglePart(this)">코어</button>
+        <button class="body-btn" onclick="togglePart(this)">허리</button>
+        <button class="body-btn" onclick="togglePart(this)">어깨</button>
+        <button class="body-btn" onclick="togglePart(this)">고관절</button>
+        <button class="body-btn" onclick="togglePart(this)">다리</button>
+        <button class="body-btn" onclick="togglePart(this)">전신</button>
+      </div>
+    </div>
+    <div class="form-group"><label class="form-label">수업 집중도</label>
+      <div class="rating-row" id="ratingRow">
+        <span class="rating-star" onclick="setRating(1)">☆</span><span class="rating-star" onclick="setRating(2)">☆</span>
+        <span class="rating-star" onclick="setRating(3)">☆</span><span class="rating-star" onclick="setRating(4)">☆</span>
+        <span class="rating-star" onclick="setRating(5)">☆</span>
+      </div>
+    </div>
+    <div class="form-group"><label class="form-label">강사 메모</label><textarea class="form-input" id="fbNote" rows="3" placeholder="예: 코어 안정성 향상. 다음 수업 티저 도전 권장."></textarea></div>
+    <div class="form-group"><label class="form-label">다음 수업 권장</label><input class="form-input" id="fbNext" placeholder="예: 레그서클 강도 높이기"></div>
+    <button class="btn-full" onclick="saveFeedback()">피드백 저장</button>
+    <button class="btn-outline-full" onclick="closeModal('feedbackModal')">취소</button>
+  </div>
+</div>
+
+<!-- 수업 추가 모달 -->
+<div class="modal-overlay" id="addClassModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">수업 추가</div>
+    <div class="form-group"><label class="form-label">수업명</label><input class="form-input" id="cName" placeholder="코어 강화 필라테스"></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">요일</label>
+        <select class="form-input" id="cDay"><option>월</option><option>화</option><option>수</option><option>목</option><option>금</option><option>토</option><option>일</option></select>
+      </div>
+      <div class="form-group"><label class="form-label">시간</label><input class="form-input" id="cTime" type="time"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">최대 인원</label><input class="form-input" id="cMax" type="number" placeholder="6" min="1"></div>
+      <div class="form-group"><label class="form-label">난이도</label>
+        <select class="form-input" id="cLevel"><option>초급</option><option>중급</option><option>고급</option></select>
+      </div>
+    </div>
+    <button class="btn-full" onclick="saveClass()">수업 저장</button>
+    <button class="btn-outline-full" onclick="closeModal('addClassModal')">취소</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const IKEY='neuron_pilates_instructor_v1';
+const DAY=['일','월','화','수','목','금','토'];
+const today=new Date();
+
+function loadData(){
+  const r=localStorage.getItem(IKEY);
+  if(r)return JSON.parse(r);
+  return{
+    instructorName:'김',
+    members:[
+      {id:1,name:'이소연',phone:'010-1234-5678',class:'기초 필라테스',date:'2024-01-15',note:'무릎 관절 주의'},
+      {id:2,name:'박지현',phone:'010-2345-6789',class:'코어 강화',date:'2024-03-02',note:''},
+      {id:3,name:'최유진',phone:'010-3456-7890',class:'바디밸런스',date:'2023-08-20',note:'허리 디스크 이력'},
+      {id:4,name:'정수빈',phone:'010-4567-8901',class:'기초 필라테스',date:'2024-05-10',note:''},
+      {id:5,name:'한다은',phone:'010-5678-9012',class:'코어 강화',date:'2024-02-28',note:'어깨 결림'},
+    ],
+    attendance:{},
+    feedbacks:[
+      {memberId:1,date:'2024-06-27',condition:'😄 좋음',parts:['코어','고관절'],rating:5,note:'자세가 많이 안정됐습니다. 다음에는 티저 도전을 권장합니다.',next:'티저 준비 운동 추가'},
+      {memberId:2,date:'2024-06-27',condition:'😐 보통',parts:['코어','허리'],rating:4,note:'허리 쪽 긴장이 있어 스트레칭 집중했습니다.',next:'허리 가동성 동작 추가'},
+    ],
+    classes:[
+      {id:1,name:'기초 필라테스',day:'월',time:'10:00',max:6,level:'초급'},
+      {id:2,name:'코어 강화',day:'월',time:'12:00',max:6,level:'중급'},
+      {id:3,name:'바디밸런스',day:'수',time:'14:00',max:8,level:'중급'},
+      {id:4,name:'저녁 플로우',day:'금',time:'19:00',max:8,level:'초급'},
+    ],
+    nextId:6,
+  };
+}
+function save(){localStorage.setItem(IKEY,JSON.stringify(data));}
+let data=loadData(),currentTab='home',attClassIdx=0,fbMemberId=null,fbRating=0,fbCond='',fbParts=[];
+
+document.getElementById('headerDate').textContent=today.toLocaleDateString('ko-KR',{month:'long',day:'numeric'})+' '+DAY[today.getDay()]+'요일';
+document.getElementById('todayDateStr').textContent=today.getFullYear()+'년 '+(today.getMonth()+1)+'월 '+today.getDate()+'일';
+document.getElementById('instructorAvatar').textContent=data.instructorName||'김';
+
+function switchTab(t){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('panel-'+t).classList.add('active');
+  document.getElementById('tab-'+t).classList.add('active');
+  currentTab=t;
+  document.getElementById('fabBtn').style.display=(t==='members'||t==='schedule')?'flex':'none';
+  if(t==='home')renderHome();
+  else if(t==='members')renderMembers('');
+  else if(t==='attendance')renderAtt();
+  else if(t==='feedback')renderFeedback();
+  else if(t==='schedule')renderSchedule();
+}
+function onFab(){if(currentTab==='members')openModal('addMemberModal');else if(currentTab==='schedule')openModal('addClassModal');}
+
+function renderHome(){
+  const todayDay=DAY[today.getDay()];
+  const tClasses=data.classes.filter(c=>c.day===todayDay);
+  document.getElementById('todayCount').textContent=tClasses.length;
+  document.getElementById('statMembers').textContent=data.members.length;
+  const tk=today.toISOString().slice(0,10);
+  const att=data.attendance[tk]||{};
+  const present=Object.values(att).filter(v=>v==='present').length;
+  document.getElementById('statToday').textContent=present;
+  document.getElementById('statRate').textContent=data.members.length?Math.round(present/data.members.length*100)+'%':'-';
+  const pendFb=data.members.filter(m=>!data.feedbacks.find(f=>f.memberId===m.id&&f.date===tk)).length;
+  document.getElementById('statFb').textContent=pendFb;
+  const now=today.toTimeString().slice(0,5);
+  const next=tClasses.find(c=>c.time>=now);
+  document.getElementById('nextClassInfo').textContent=next?next.time+' '+next.name:'없음';
+  document.getElementById('todayClasses').innerHTML=tClasses.length?tClasses.map(c=>`
+    <div class="class-card" onclick="switchTab('attendance')">
+      <div class="class-time-badge"><div class="class-time">${c.time}</div><div class="class-ampm">${c.level}</div></div>
+      <div class="class-info"><div class="class-name">${c.name}</div><div class="class-detail">최대 ${c.max}명 · ${c.day}요일</div></div>
+      <span class="class-status status-soon">예정</span>
+    </div>`).join(''):'<div class="empty"><div class="empty-icon">📭</div><div class="empty-text">오늘 수업이 없습니다</div></div>';
+  document.getElementById('recentFb').innerHTML=data.feedbacks.slice(-2).reverse().map(fb=>{
+    const m=data.members.find(m=>m.id===fb.memberId);if(!m)return'';
+    return`<div class="fb-card" onclick="openFbModal(${m.id})">
+      <div class="fb-header"><div class="fb-avatar">${m.name[0]}</div><div><div class="fb-name">${m.name}</div><div class="fb-class">${fb.date}</div></div></div>
+      <div class="fb-preview">${fb.note.slice(0,50)}...</div>
+    </div>`;
+  }).join('');
+}
+
+function renderMembers(q=''){
+  const f=data.members.filter(m=>m.name.includes(q));
+  document.getElementById('memberCount').textContent=f.length+'명';
+  document.getElementById('memberListEl').innerHTML=f.map(m=>`
+    <div class="member-card" onclick="openMemberDetail(${m.id})">
+      <div class="m-avatar">${m.name[0]}</div>
+      <div class="m-info"><div class="m-name">${m.name}</div><div class="m-detail">${m.class} · ${m.date}</div>${m.note?`<div style="font-size:11px;color:var(--red);margin-top:2px;">⚠ ${m.note}</div>`:''}</div>
+      <span class="m-tag">${m.class}</span>
+    </div>`).join('')||'<div class="empty"><div class="empty-icon">🔍</div><div class="empty-text">검색 결과 없음</div></div>';
+}
+
+function openMemberDetail(id){
+  const m=data.members.find(m=>m.id===id);if(!m)return;
+  const fbs=data.feedbacks.filter(f=>f.memberId===id).slice(-3).reverse();
+  document.getElementById('memberDetailContent').innerHTML=`
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px;">
+      <div class="m-avatar" style="width:56px;height:56px;font-size:20px;">${m.name[0]}</div>
+      <div><div style="font-size:20px;font-weight:700;">${m.name}</div><div style="font-size:13px;color:var(--mid);">${m.class} · ${m.phone}</div>${m.note?`<div style="font-size:12px;color:var(--red);margin-top:3px;">⚠ ${m.note}</div>`:''}</div>
+    </div>
+    <div style="font-size:12px;font-weight:700;color:var(--mid);margin-bottom:10px;">최근 피드백</div>
+    ${fbs.length?fbs.map(fb=>`<div style="background:var(--cream);border-radius:12px;padding:12px;margin-bottom:8px;">
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span style="font-size:12px;font-weight:600;">${fb.condition} ${'⭐'.repeat(fb.rating)}</span><span style="font-size:11px;color:var(--mid);">${fb.date}</span></div>
+      <div style="font-size:12px;line-height:1.6;">${fb.note}</div>${fb.next?`<div style="font-size:11px;color:var(--green2);margin-top:5px;">→ ${fb.next}</div>`:''}
+    </div>`).join(''):'<p style="font-size:13px;color:var(--mid);">아직 피드백이 없습니다.</p>'}
+    <button class="btn-full" style="margin-top:12px;" onclick="closeModal('memberDetailModal');openFbModal(${id})">피드백 작성</button>
+    <button style="width:100%;padding:12px;background:transparent;color:var(--red);border:1.5px solid var(--red);border-radius:14px;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;margin-top:8px;" onclick="deleteMember(${id})">회원 삭제</button>`;
+  openModal('memberDetailModal');
+}
+
+function addMember(){
+  const name=document.getElementById('nName').value.trim();if(!name){showToast('이름을 입력하세요');return;}
+  data.members.push({id:data.nextId++,name,phone:document.getElementById('nPhone').value,class:document.getElementById('nClass').value,date:document.getElementById('nDate').value||today.toISOString().slice(0,10),note:document.getElementById('nNote').value});
+  save();closeModal('addMemberModal');renderMembers('');showToast(name+' 회원 등록 완료 ✓');
+  ['nName','nPhone','nNote'].forEach(id=>document.getElementById(id).value='');
+}
+function deleteMember(id){if(!confirm('삭제하시겠습니까?'))return;data.members=data.members.filter(m=>m.id!==id);save();closeModal('memberDetailModal');renderMembers('');showToast('삭제 완료');}
+
+function renderAtt(){
+  const todayDay=DAY[today.getDay()];
+  const tClasses=data.classes.filter(c=>c.day===todayDay);
+  document.getElementById('attSelector').innerHTML=tClasses.length?
+    tClasses.map((c,i)=>`<button class="att-class-btn ${i===attClassIdx?'active':''}" onclick="selAttClass(${i})">${c.name}</button>`).join(''):
+    '<span style="font-size:12px;color:var(--mid);padding:8px 12px;">오늘 수업 없음</span>';
+  renderAttList(tClasses[attClassIdx]);
+}
+function selAttClass(i){attClassIdx=i;renderAtt();}
+function renderAttList(cls){
+  if(!cls){document.getElementById('attList').innerHTML='';document.getElementById('attSummary').textContent='';return;}
+  const tk=today.toISOString().slice(0,10);
+  const att=data.attendance[tk]||{};
+  const cms=data.members.filter(m=>m.class===cls.name);
+  const pc=cms.filter(m=>att[m.id]==='present').length;
+  document.getElementById('attSummary').textContent=`${cls.name} · ${pc}/${cms.length}명 출석`;
+  document.getElementById('attList').innerHTML=cms.map(m=>{
+    const s=att[m.id]||'none';
+    return`<div class="att-row">
+      <div class="m-avatar" style="width:40px;height:40px;font-size:14px;">${m.name[0]}</div>
+      <div class="att-info"><div class="att-name">${m.name}</div><div class="att-sub">${m.class}</div></div>
+      <div class="att-btns">
+        <button class="att-btn ${s==='present'?'att-o':'att-off'}" onclick="setAtt(${m.id},'present')">출석</button>
+        <button class="att-btn ${s==='absent'?'att-x':'att-off'}" onclick="setAtt(${m.id},'absent')">결석</button>
+      </div></div>`;
+  }).join('')||'<div class="empty"><div class="empty-icon">👥</div><div class="empty-text">등록된 회원이 없습니다</div></div>';
+}
+function setAtt(mid,status){
+  const tk=today.toISOString().slice(0,10);
+  if(!data.attendance[tk])data.attendance[tk]={};
+  data.attendance[tk][mid]=status;save();
+  renderAttList(data.classes.filter(c=>c.day===DAY[today.getDay()])[attClassIdx]);
+}
+function markAllPresent(){
+  const tk=today.toISOString().slice(0,10);
+  const cls=data.classes.filter(c=>c.day===DAY[today.getDay()])[attClassIdx];if(!cls)return;
+  if(!data.attendance[tk])data.attendance[tk]={};
+  data.members.filter(m=>m.class===cls.name).forEach(m=>{data.attendance[tk][m.id]='present';});
+  save();renderAttList(cls);showToast('전원 출석 처리 완료 ✓');
+}
+
+function renderFeedback(){
+  const tk=today.toISOString().slice(0,10);
+  document.getElementById('feedbackList').innerHTML=data.members.map(m=>{
+    const fb=data.feedbacks.find(f=>f.memberId===m.id&&f.date===tk);
+    return`<div class="fb-card" onclick="openFbModal(${m.id})">
+      <div class="fb-header">
+        <div class="fb-avatar">${m.name[0]}</div>
+        <div style="flex:1;"><div class="fb-name">${m.name}</div><div class="fb-class">${m.class}</div></div>
+        ${fb?'<span style="font-size:10px;background:var(--green2);color:white;padding:3px 9px;border-radius:10px;">완료</span>':'<span class="fb-new">미작성</span>'}
+      </div>
+      ${fb?`<div class="chip-row">${fb.parts.map(p=>`<span class="chip chip-blue">${p}</span>`).join('')}<span class="chip chip-green">${'⭐'.repeat(fb.rating)}</span></div><div class="fb-preview">${fb.note.slice(0,60)}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+function openFbModal(id){
+  fbMemberId=id;fbRating=0;fbCond='';fbParts=[];
+  const m=data.members.find(m=>m.id===id);
+  document.getElementById('fbModalTitle').textContent=m.name+' 피드백';
+  document.querySelectorAll('.cond-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.body-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('fbNote').value='';document.getElementById('fbNext').value='';
+  updateStars(0);openModal('feedbackModal');
+}
+function selCond(el,v){document.querySelectorAll('.cond-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active');fbCond=v;}
+function togglePart(el){el.classList.toggle('active');const v=el.textContent;fbParts=fbParts.includes(v)?fbParts.filter(p=>p!==v):[...fbParts,v];}
+function setRating(n){fbRating=n;updateStars(n);}
+function updateStars(n){document.querySelectorAll('.rating-star').forEach((s,i)=>s.textContent=i<n?'⭐':'☆');}
+function saveFeedback(){
+  const note=document.getElementById('fbNote').value.trim();if(!note){showToast('메모를 입력하세요');return;}
+  const tk=today.toISOString().slice(0,10);
+  data.feedbacks=data.feedbacks.filter(f=>!(f.memberId===fbMemberId&&f.date===tk));
+  data.feedbacks.push({memberId:fbMemberId,date:tk,condition:fbCond||'😐 보통',parts:fbParts,rating:fbRating||3,note,next:document.getElementById('fbNext').value});
+  save();closeModal('feedbackModal');renderFeedback();showToast('피드백 저장 완료 ✓');
+}
+
+function renderSchedule(){
+  document.getElementById('scheduleList').innerHTML=data.classes.map(c=>`
+    <div class="class-card">
+      <div class="class-time-badge"><div class="class-time">${c.time}</div><div class="class-ampm">${c.day}요일</div></div>
+      <div class="class-info"><div class="class-name">${c.name}</div><div class="class-detail">${c.level} · 최대 ${c.max}명</div></div>
+      <button style="background:none;border:none;font-size:20px;cursor:pointer;padding:4px;" onclick="deleteClass(${c.id})">🗑</button>
+    </div>`).join('');
+}
+function saveClass(){
+  const name=document.getElementById('cName').value.trim();if(!name){showToast('수업명을 입력하세요');return;}
+  data.classes.push({id:data.nextId++,name,day:document.getElementById('cDay').value,time:document.getElementById('cTime').value||'10:00',max:parseInt(document.getElementById('cMax').value)||6,level:document.getElementById('cLevel').value});
+  save();closeModal('addClassModal');renderSchedule();showToast('수업 추가 완료 ✓');
+}
+function deleteClass(id){if(!confirm('삭제하시겠습니까?'))return;data.classes=data.classes.filter(c=>c.id!==id);save();renderSchedule();}
+
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.modal-overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open');}));
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
+renderHome();
+</script>
+</body>
+</html>
