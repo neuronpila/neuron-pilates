@@ -1139,6 +1139,7 @@ async function runGeminiAnalysis(imgUrl,thumbBase64){
       showKeyBox('API 키가 유효하지 않습니다. 새 키를 입력해 주세요.');
       return;
     }
+    if(apiRes.status===429){clearTimeout(tid);document.getElementById('dietKcal').placeholder='직접 입력';document.getElementById('dietAiResult').innerHTML='<div style="background:#FFF8E7;border-radius:10px;padding:10px;font-size:11px;color:#B8860B;">⏳ API 호출 한도 초과 — 1~2분 후 다시 시도해 주세요 (무료 키는 분당 15회 제한).</div>';return;}
     if(apiRes.status===400){const e=await apiRes.text();showKeyBox('요청 오류(400): '+e.slice(0,120));return;}
     if(!apiRes.ok){const e=await apiRes.text();throw new Error(`HTTP ${apiRes.status}: ${e.slice(0,200)}`);}
 
