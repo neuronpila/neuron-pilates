@@ -1177,6 +1177,37 @@ window.openDietCmt=openDietCmt;window.deleteDiet=deleteDiet;window.deleteColumn=
 
 renderHome();
 </script>
-<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch(()=>{});}</script>
+
+<!-- PWA 설치 배너 -->
+<style>
+#pwaBanner{position:fixed;bottom:0;left:0;right:0;max-width:430px;margin:0 auto;background:#2E2E2B;color:#fff;padding:14px 20px;display:none;align-items:center;justify-content:space-between;gap:12px;z-index:9999;box-shadow:0 -2px 12px rgba(0,0,0,0.3);}
+#pwaBanner span{font-size:14px;font-weight:500;line-height:1.4;}
+#pwaBannerBtn{background:#7ECBA0;color:#1A1A17;border:none;border-radius:20px;padding:8px 18px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:inherit;}
+#pwaBannerClose{background:none;border:none;color:rgba(255,255,255,0.7);font-size:20px;cursor:pointer;padding:0 4px;line-height:1;}
+</style>
+<div id="pwaBanner">
+  <span>📲 뉴런필라테스 앱을<br>홈화면에 추가하세요</span>
+  <button id="pwaBannerBtn">설치</button>
+  <button id="pwaBannerClose">✕</button>
+</div>
+<script>
+(function(){
+  let deferred=null;
+  window.addEventListener('beforeinstallprompt',function(e){
+    e.preventDefault();deferred=e;
+    document.getElementById('pwaBanner').style.display='flex';
+  });
+  document.getElementById('pwaBannerBtn').addEventListener('click',function(){
+    if(!deferred)return;
+    deferred.prompt();
+    deferred.userChoice.then(function(){deferred=null;document.getElementById('pwaBanner').style.display='none';});
+  });
+  document.getElementById('pwaBannerClose').addEventListener('click',function(){
+    document.getElementById('pwaBanner').style.display='none';
+  });
+  window.addEventListener('appinstalled',function(){document.getElementById('pwaBanner').style.display='none';});
+  if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch(function(){});}
+})();
+</script>
 </body>
 </html>
