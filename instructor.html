@@ -772,7 +772,7 @@ async function renderHome() {
   const dietSnap = await getDocs(query(collection(db,'diets'),where('status','==','pending')));
   document.getElementById('dietPending').innerHTML = dietSnap.empty ?
     '<div style="font-size:12px;color:var(--mid);padding:8px 0;">대기 중인 식단 없음</div>' :
-    dietSnap.docs.slice(0,2).map(d=>{const dt=d.data();return`
+    dietSnap.docs.slice(0,2).map(d=>{const dt=d.data();if(dt.thumbnailBase64)window._dietThumbMap[d.id]=dt.thumbnailBase64;return`
     <div class="fb-card" onclick="openDietCmt('${d.id}','${dt.memberName}','${dt.imageUrl||''}')">
       <div class="fb-hdr">
         <div class="fb-av text-av">${dt.memberName[0]}</div>
@@ -1084,9 +1084,10 @@ window.saveGeminiKey=function(){
   localStorage.setItem('np_gemini_key',k);
   document.getElementById('geminiSetupBox').style.display='none';
   showToast('저장 완료 — 분석 시작 ✓');
-  if(window._pendingDietImgUrl) runGeminiAnalysis(window._pendingDietImgUrl);
+  if(window._pendingDietDocId) runGeminiAnalysis(window._pendingDietImgUrl,window._dietThumbMap[window._pendingDietDocId]||'');
 };
-async function runGeminiAnalysis(imgUrl){
+window._dietThumbMap={};
+async function runGeminiAnalysis(imgUrl,thumbBase64){
   const key=getGeminiKey();
   if(!key){
     document.getElementById('geminiSetupBox').style.display='block';
@@ -1111,15 +1112,11 @@ async function runGeminiAnalysis(imgUrl){
 
   try{
     let base64,mimeType;
-    try{
-      const imgRes=await fetch(imgUrl,{signal:ctrl.signal});
-      if(!imgRes.ok)throw new Error(`이미지 로드 실패 HTTP ${imgRes.status}`);
-      const blob=await imgRes.blob();
-      mimeType=blob.type||'image/jpeg';
-      base64=await new Promise(r=>{const rd=new FileReader();rd.onloadend=()=>r(rd.result.split(',')[1]);rd.readAsDataURL(blob);});
-    }catch(imgErr){
+    if(thumbBase64){
+      base64=thumbBase64;mimeType='image/jpeg';
+    }else{
       clearTimeout(tid);
-      document.getElementById('dietAiResult').innerHTML=`<div style="background:#FEF0EE;border-radius:10px;padding:10px;font-size:11px;color:#C0392B;">⚠ 이미지 로드 실패: ${imgErr.message}</div>`;
+      document.getElementById('dietAiResult').innerHTML=`<div style="background:#FEF0EE;border-radius:10px;padding:10px;font-size:11px;color:#C0392B;">⚠ 썸네일 없음 — 새로 업로드된 식단만 AI 분析 가능합니다.</div>`;
       return;
     }
 
@@ -1180,8 +1177,10 @@ async function renderDiet() {
   if(snap.empty){document.getElementById('dietList').innerHTML='<div class="empty"><div class="empty-i">🥗</div><div style="font-size:13px;">업로드된 식단 없음</div></div>';return;}
   const container=document.getElementById('dietList');
   container.innerHTML='';
+  window._dietThumbMap={};
   snap.docs.forEach(d=>{
     const dt=d.data();
+    if(dt.thumbnailBase64) window._dietThumbMap[d.id]=dt.thumbnailBase64;
     const card=document.createElement('div');
     card.className='diet-card';
     card.innerHTML=`
@@ -1210,6 +1209,7 @@ async function renderDiet() {
 }
 function openDietCmt(id,name,imgUrl){
   dietDocId=id;
+  window._pendingDietDocId=id;
   window._pendingDietImgUrl=imgUrl;
   document.getElementById('dietCmtTitle').textContent=name+' 식단 코멘트';
   document.getElementById('dietImgPreview').innerHTML=imgUrl?`<img src="${imgUrl}" style="width:100%;border-radius:12px;max-height:180px;object-fit:cover;">`:'<div style="text-align:center;font-size:36px;padding:20px;">📷</div>';
@@ -1219,7 +1219,9 @@ function openDietCmt(id,name,imgUrl){
   document.getElementById('dietAiResult').innerHTML='';
   document.getElementById('geminiSetupBox').style.display='none';
   openModal('dietCmtModal');
-  if(imgUrl) runGeminiAnalysis(imgUrl);
+  const thumb=window._dietThumbMap[id]||'';
+  if(thumb) runGeminiAnalysis(imgUrl,thumb);
+  else document.getElementById('dietAiResult').innerHTML='<div style="background:#FEF0EE;border-radius:10px;padding:10px;font-size:11px;color:#C0392B;">⚠ 썸네일 없음 — 새로 업로드된 식단만 AI 분析 가능합니다.</div>';
 }
 async function saveDietCmt(){
   if(!dietDocId)return;

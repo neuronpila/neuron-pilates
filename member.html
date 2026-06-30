@@ -538,7 +538,7 @@ const today = new Date();
 const todayKey = today.toISOString().slice(0,10);
 let mData = JSON.parse(localStorage.getItem('np_member_v3')||'{}');
 let memberId = null;
-let dietFileData = null;
+let dietFileData = null, dietThumbB64 = null;
 let aiKcal = null;
 let timerInterval=null, timerSecs=0, timerRunning=false;
 // 아바타: hidden input은 대용량 base64를 잘라내므로 JS 변수에 저장
@@ -934,11 +934,22 @@ window.highlightMuscle=function(key){
 // ── DIET ──
 window.handleDietUpload=function(e){
   const file=e.target.files[0];if(!file)return;
-  dietFileData=file;
+  dietFileData=file;dietThumbB64=null;
   const reader=new FileReader();
   reader.onload=ev=>{
+    const dataUrl=ev.target.result;
+    const img=new Image();
+    img.onload=()=>{
+      const MAX=600;let w=img.width,h=img.height;
+      if(w>MAX){h=Math.round(h*MAX/w);w=MAX;}
+      if(h>MAX){w=Math.round(w*MAX/h);h=MAX;}
+      const cv=document.createElement('canvas');cv.width=w;cv.height=h;
+      cv.getContext('2d').drawImage(img,0,0,w,h);
+      dietThumbB64=cv.toDataURL('image/jpeg',0.7).split(',')[1];
+    };
+    img.src=dataUrl;
     document.getElementById('dietPreview').innerHTML=`
-      <img src="${ev.target.result}" style="width:100%;border-radius:12px;max-height:220px;object-fit:cover;margin-bottom:4px;">
+      <img src="${dataUrl}" style="width:100%;border-radius:12px;max-height:220px;object-fit:cover;margin-bottom:4px;">
       <div style="font-size:11px;color:var(--mid);text-align:center;margin-bottom:8px;">강사가 칼로리를 분석하고 코멘트를 남겨드립니다 🌿</div>`;
     document.getElementById('dietSubmitBtn').style.display='block';
   };
@@ -951,11 +962,11 @@ window.submitDiet=async function(){
     const storageRef=ref(storage,`diets/${mData.name}_${todayKey}_${Date.now()}`);
     await uploadBytes(storageRef,dietFileData);
     const url=await getDownloadURL(storageRef);
-    await addDoc(collection(db,'diets'),{memberName:mData.name,memberId:memberId||'',date:todayKey,imageUrl:url,status:'pending',createdAt:new Date().toISOString()});
+    await addDoc(collection(db,'diets'),{memberName:mData.name,memberId:memberId||'',date:todayKey,imageUrl:url,thumbnailBase64:dietThumbB64||null,status:'pending',createdAt:new Date().toISOString()});
     document.getElementById('dietPreview').innerHTML='';
     document.getElementById('dietSubmitBtn').style.display='none';
     document.getElementById('dietFile').value='';
-    dietFileData=null;renderDietHistory();
+    dietFileData=null;dietThumbB64=null;renderDietHistory();
     showToast('식단 업로드 완료! 강사 코멘트를 기다려 주세요 🌿');
   }catch(e){showToast('업로드 실패. Storage 설정을 확인해 주세요.');}
 };
