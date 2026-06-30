@@ -957,6 +957,7 @@ window.handleDietUpload=function(e){
 };
 window.submitDiet=async function(){
   if(!dietFileData){showToast('사진을 선택해 주세요');return;}
+  if(!dietThumbB64){await new Promise(r=>setTimeout(r,500));}
   showToast('업로드 중...');
   try{
     const storageRef=ref(storage,`diets/${mData.name}_${todayKey}_${Date.now()}`);
