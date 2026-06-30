@@ -1,9 +1,12 @@
-const CACHE_NAME = 'pilatesflow-v1';
+const CACHE_NAME = 'pilatesflow-v2';
 const URLS = [
-  '/index.html',
-  '/instructor.html',
-  '/member.html',
-  '/manifest.json'
+  './index.html',
+  './instructor.html',
+  './member.html',
+  './manifest.json',
+  './manifest-member.json',
+  './manifest-instructor.json',
+  './logo.png'
 ];
 
 self.addEventListener('install', e => {
