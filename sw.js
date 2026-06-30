@@ -1,12 +1,13 @@
-const CACHE_NAME = 'pilatesflow-v2';
+const CACHE_NAME = 'pilatesflow-v3';
+const BASE = self.registration.scope;
 const URLS = [
-  './index.html',
-  './instructor.html',
-  './member.html',
-  './manifest.json',
-  './manifest-member.json',
-  './manifest-instructor.json',
-  './logo.png'
+  BASE + 'index.html',
+  BASE + 'member.html',
+  BASE + 'instructor.html',
+  BASE + 'manifest.json',
+  BASE + 'manifest-member.json',
+  BASE + 'manifest-instructor.json',
+  BASE + 'logo.png'
 ];
 
 self.addEventListener('install', e => {
@@ -25,6 +26,11 @@ self.addEventListener('activate', e => {
 
 self.addEventListener('fetch', e => {
   e.respondWith(
-    caches.match(e.request).then(cached => cached || fetch(e.request).catch(() => caches.match('/index.html')))
+    caches.match(e.request).then(cached => {
+      if (cached) return cached;
+      return fetch(e.request).catch(() =>
+        caches.match(BASE + 'index.html').then(r => r || new Response('오프라인 상태입니다.', {status: 503, headers: {'Content-Type': 'text/plain;charset=utf-8'}}))
+      );
+    })
   );
 });
