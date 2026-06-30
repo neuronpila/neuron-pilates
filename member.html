@@ -853,12 +853,48 @@ window.toggleBook=function(id){
 
 // ── MUSCLE ──
 const muscleInfo={
-  chest:{name:'가슴·어깨',color:'#5B8DB8',desc:'필라테스에서 가슴과 어깨는 플랭크, 다운독, 오픈 레그 로커에서 주로 사용됩니다.',exercises:['플랭크','사이드 플랭크','오픈 레그 로커']},
-  core:{name:'코어·복근',color:'#2A7A5A',desc:'코어는 거의 모든 필라테스 동작의 중심입니다. 헌드레드, 롤업, 크리스크로스에서 집중 사용됩니다.',exercises:['헌드레드','롤업','크리스크로스','티저']},
-  back:{name:'등·척추',color:'#C4A055',desc:'척추 강화와 자세 교정의 핵심 부위입니다.',exercises:['스완','수영','싱글레그킥']},
-  glute:{name:'둔근·골반',color:'#D9634E',desc:'골반 안정성과 하체 균형의 핵심입니다.',exercises:['브릿지','사이드킥','레그풀']},
-  arm:{name:'팔·상완',color:'#7B68EE',desc:'팔은 지지 동작과 밸런스 훈련에서 활성화됩니다.',exercises:['플랭크','푸쉬업 변형','사이드 플랭크']},
-  leg:{name:'다리·햄스트링',color:'#FF8C00',desc:'하체 강화와 유연성 증가의 핵심 부위입니다.',exercises:['레그서클','싱글레그스트레치','레그풀']}
+  chest:{name:'가슴·어깨',color:'#5B8DB8',
+    desc:'가슴과 어깨는 플랭크, 오픈 레그 로커, 다운독 등 지지 동작에서 주로 활성화됩니다. 올바른 어깨 위치를 유지하면 거북목·라운드 숄더 교정에 효과적입니다.',
+    tips:['💡 플랭크 시 어깨가 귀 쪽으로 올라가지 않도록 주의','💡 가슴을 활짝 열고 날개뼈를 등 중앙으로 모으는 것이 핵심','💡 일주일 3회 이상 꾸준히 하면 라운드 숄더 교정 효과'],
+    exercises:['플랭크','사이드 플랭크','오픈 레그 로커','다운독','푸쉬업 변형'],
+    video:'https://www.youtube.com/results?search_query=필라테스+가슴+어깨+강화+운동',
+    info:'https://www.youtube.com/results?search_query=pilates+chest+shoulder+exercises'
+  },
+  core:{name:'코어·복근',color:'#2A7A5A',
+    desc:'코어는 필라테스의 심장입니다. 헌드레드, 롤업, 크리스크로스, 티저 등 대부분의 동작에서 깊은 복근(복횡근)과 표면 복근을 함께 자극합니다.',
+    tips:['💡 배꼽을 척추 방향으로 끌어당기는 "복부 수축"이 기본','💡 숨을 참지 말고 내쉬며 복부를 조이는 연습을 먼저','💡 목에 힘이 들어갈 때는 손으로 머리를 가볍게 지지'],
+    exercises:['헌드레드','롤업','크리스크로스','티저','더블레그스트레치'],
+    video:'https://www.youtube.com/results?search_query=필라테스+코어+복근+강화',
+    info:'https://www.youtube.com/results?search_query=pilates+core+abs+workout'
+  },
+  back:{name:'등·척추',color:'#C4A055',
+    desc:'척추 기립근과 등 심부 근육을 강화합니다. 스완, 수영, 싱글레그킥 등 엎드린 자세의 동작들이 척추 신전 능력과 자세 개선에 핵심입니다.',
+    tips:['💡 고개를 너무 높이 들지 않고 목과 등이 이어지는 선을 유지','💡 어깨는 귀와 멀게, 날개뼈는 척추 쪽으로 모아서 안정화','💡 허리 통증이 있다면 스완 대신 아이 자세로 대체'],
+    exercises:['스완','수영','싱글레그킥','슈퍼맨','백익스텐션'],
+    video:'https://www.youtube.com/results?search_query=필라테스+등+척추+강화+운동',
+    info:'https://www.youtube.com/results?search_query=pilates+back+spine+extension'
+  },
+  glute:{name:'둔근·골반',color:'#D9634E',
+    desc:'둔근(대·중·소둔근)과 골반 안정 근육을 강화합니다. 브릿지, 사이드킥, 레그풀이 대표 동작이며, 올바른 골반 중립 유지가 핵심입니다.',
+    tips:['💡 브릿지 시 허리를 과도하게 꺾지 않고 골반을 중립으로','💡 사이드킥 시 상체가 흔들리지 않도록 복부를 고정','💡 둔근을 "쥐어짜는" 느낌으로 수축하는 것이 효과적'],
+    exercises:['브릿지','사이드킥','레그풀','클램쉘','힙힌지'],
+    video:'https://www.youtube.com/results?search_query=필라테스+둔근+골반+강화',
+    info:'https://www.youtube.com/results?search_query=pilates+glute+hip+exercises'
+  },
+  arm:{name:'팔·상완',color:'#7B68EE',
+    desc:'이두·삼두·전완근과 어깨 안정 근육을 함께 훈련합니다. 플랭크 계열 동작에서 지지력을, 저항 밴드 동작에서 근력을 키웁니다.',
+    tips:['💡 손목을 보호하려면 주먹을 쥐거나 밴드를 활용','💡 팔만 움직이지 않고 코어를 함께 잡으면 효과가 배가','💡 반동 없이 천천히 움직이는 것이 근육 자극 핵심'],
+    exercises:['플랭크','푸쉬업 변형','사이드 플랭크','밴드 바이셉컬','밴드 트라이셉익스텐션'],
+    video:'https://www.youtube.com/results?search_query=필라테스+팔+상완+강화+운동',
+    info:'https://www.youtube.com/results?search_query=pilates+arm+upper+body+workout'
+  },
+  leg:{name:'다리·햄스트링',color:'#FF8C00',
+    desc:'대퇴사두근, 햄스트링, 종아리를 균형 있게 강화하고 유연성을 개선합니다. 레그서클, 싱글레그스트레치 등이 대표 동작입니다.',
+    tips:['💡 레그서클 시 골반이 흔들리지 않도록 복부를 조여줄 것','💡 햄스트링 유연성이 부족하면 무릎을 살짝 구부려 시작','💡 하루 10분 하체 스트레칭만으로도 무릎 통증 예방 가능'],
+    exercises:['레그서클','싱글레그스트레치','레그풀','스쿼트변형','레그프레스필라테스'],
+    video:'https://www.youtube.com/results?search_query=필라테스+다리+하체+강화',
+    info:'https://www.youtube.com/results?search_query=pilates+leg+hamstring+exercises'
+  }
 };
 async function renderMuscle(){
   const weekDays=['월','화','수','목','금','토','일'];
@@ -885,8 +921,14 @@ window.highlightMuscle=function(key){
   document.getElementById('muscleInfo').innerHTML=`
     <div style="font-size:13px;font-weight:700;margin-bottom:6px;">💪 ${info.name}</div>
     <div style="font-size:12px;line-height:1.7;margin-bottom:10px;">${info.desc}</div>
+    <div style="font-size:11px;font-weight:700;color:var(--mid);margin-bottom:5px;">💡 운동 팁</div>
+    <div style="font-size:11px;line-height:1.9;margin-bottom:10px;color:#444;">${info.tips.join('<br>')}</div>
     <div style="font-size:11px;font-weight:700;color:var(--mid);margin-bottom:6px;">관련 운동</div>
-    <div style="display:flex;gap:6px;flex-wrap:wrap;">${info.exercises.map(e=>`<span class="tag-g">${e}</span>`).join('')}</div>`;
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;">${info.exercises.map(e=>`<span class="tag-g">${e}</span>`).join('')}</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <a href="${info.video}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:4px;background:#FF0000;color:#fff;padding:6px 14px;border-radius:20px;font-size:11px;font-weight:700;text-decoration:none;">▶ 유튜브 영상</a>
+      <a href="${info.info}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:4px;background:var(--g2);color:#fff;padding:6px 14px;border-radius:20px;font-size:11px;font-weight:700;text-decoration:none;">🔍 관련 정보</a>
+    </div>`;
 };
 
 // ── DIET / GEMINI ──
@@ -939,7 +981,7 @@ window.handleDietUpload=function(e){
           body:JSON.stringify({
             contents:[{parts:[
               {inline_data:{mime_type:mimeType, data:base64}},
-              {text:'이 식단 사진에 있는 음식들을 분석해서 칼로리를 추정해주세요. 반드시 JSON 형식으로만 답하세요. 다른 설명 없이 순수 JSON만. 형식: {"foods":["음식명1","음식명2"],"totalKcal":숫자,"breakdown":[{"name":"음식명","kcal":숫자,"amount":"1인분"}]}'}
+              {text:'이 식단 사진에 있는 음식들을 분석해서 칼로리와 주요 영양소를 추정해주세요. 반드시 JSON 형식으로만 답하세요. 다른 설명 없이 순수 JSON만. 형식: {"foods":["음식명1","음식명2"],"totalKcal":숫자,"protein":숫자,"carbs":숫자,"fat":숫자,"breakdown":[{"name":"음식명","kcal":숫자,"amount":"1인분","protein":숫자,"carbs":숫자,"fat":숫자}]}'}
             ]}],
             generationConfig:{temperature:0.2,maxOutputTokens:1024}
           })
@@ -962,20 +1004,37 @@ window.handleDietUpload=function(e){
 
       aiKcal=json.totalKcal;
       document.getElementById('aiCalResult').innerHTML=`
-        <div style="margin-bottom:8px;display:flex;align-items:center;gap:6px;">
+        <div style="margin-bottom:10px;display:flex;align-items:center;gap:6px;">
           <span style="font-size:16px;">🤖</span>
           <span style="font-size:12px;font-weight:700;color:var(--g2);">AI 칼로리 분석 완료</span>
         </div>
-        <div style="font-family:'Inter',sans-serif;font-size:28px;font-weight:800;color:var(--stone);margin-bottom:10px;">${json.totalKcal} <span style="font-size:14px;font-weight:500;color:var(--mid);">kcal</span></div>
-        <div style="display:flex;flex-wrap:wrap;gap:5px;">
+        <div style="font-family:'Inter',sans-serif;font-size:28px;font-weight:800;color:var(--stone);margin-bottom:12px;">${json.totalKcal} <span style="font-size:14px;font-weight:500;color:var(--mid);">kcal</span></div>
+        ${(json.protein||json.carbs||json.fat)?`
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:12px;">
+          <div style="background:#EBF5F0;border-radius:10px;padding:8px;text-align:center;">
+            <div style="font-size:10px;color:var(--mid);margin-bottom:2px;">단백질</div>
+            <div style="font-size:15px;font-weight:800;color:#2A7A5A;">${json.protein||0}g</div>
+          </div>
+          <div style="background:#FFF8E7;border-radius:10px;padding:8px;text-align:center;">
+            <div style="font-size:10px;color:var(--mid);margin-bottom:2px;">탄수화물</div>
+            <div style="font-size:15px;font-weight:800;color:#C4A055;">${json.carbs||0}g</div>
+          </div>
+          <div style="background:#FEF0EE;border-radius:10px;padding:8px;text-align:center;">
+            <div style="font-size:10px;color:var(--mid);margin-bottom:2px;">지방</div>
+            <div style="font-size:15px;font-weight:800;color:#D9634E;">${json.fat||0}g</div>
+          </div>
+        </div>`:''}
+        <div style="display:flex;flex-direction:column;gap:5px;margin-bottom:10px;">
           ${(json.breakdown||[]).map(b=>`
-            <div style="background:var(--white);padding:5px 10px;border-radius:10px;font-size:11px;border:1px solid rgba(0,0,0,0.06);">
-              <span>${b.name}</span>
-              ${b.amount?`<span style="color:var(--mid);"> · ${b.amount}</span>`:''}
-              <b style="color:var(--g2);margin-left:4px;">${b.kcal}kcal</b>
+            <div style="background:var(--white);padding:7px 10px;border-radius:10px;font-size:11px;border:1px solid rgba(0,0,0,0.06);display:flex;justify-content:space-between;align-items:center;">
+              <span>${b.name}${b.amount?` <span style="color:var(--mid);">· ${b.amount}</span>`:''}</span>
+              <span style="display:flex;gap:6px;align-items:center;">
+                ${b.protein?`<span style="color:#2A7A5A;">P ${b.protein}g</span>`:''}
+                <b style="color:var(--g2);">${b.kcal}kcal</b>
+              </span>
             </div>`).join('')}
         </div>
-        <div style="margin-top:10px;font-size:11px;color:var(--mid);">
+        <div style="font-size:11px;color:var(--mid);">
           🍽 인식된 음식: ${(json.foods||[]).join(', ')}
         </div>`;
     }catch(err){
@@ -1040,22 +1099,124 @@ async function renderDietHistory(){
 // ── HOMETRAINING ──
 const htData={
   beginner:[
-    {emoji:'💨',title:'필라테스 호흡 훈련',time:'10분',level:'초급',tags:['호흡','코어'],desc:'필라테스의 기본인 흉식 호흡을 연습합니다.',steps:['① 바닥에 누워 무릎을 세웁니다.','② 코로 숨을 들이마시며 갈비뼈를 옆으로 넓힙니다.','③ 입으로 "쏴~" 소리를 내며 배꼽을 척추 쪽으로 당깁니다.','④ 10회 × 3세트 반복합니다.']},
-    {emoji:'🐱',title:'고양이-소 스트레칭',time:'10분',level:'초급',tags:['척추','유연성'],desc:'척추 전체를 부드럽게 풀어주는 기초 동작입니다.',steps:['① 네발 기기 자세로 손목은 어깨 아래.','② 숨을 내쉬며 등을 둥글게 말고(고양이).','③ 숨을 들이마시며 배를 내리고 가슴을 듭니다(소).','④ 10회 × 3세트 반복합니다.']},
-    {emoji:'🌉',title:'브릿지',time:'15분',level:'초급',tags:['둔근','코어'],desc:'둔근과 코어를 강화하는 기본 동작입니다.',steps:['① 바닥에 누워 무릎을 세웁니다.','② 숨을 내쉬며 골반을 들어 올립니다.','③ 3초 유지 후 천천히 내립니다.','④ 12회 × 3세트 반복합니다.']}
+    {emoji:'💨',title:'필라테스 호흡 훈련',time:'10분',level:'초급',tags:['호흡','코어'],
+      desc:'필라테스의 기본인 흉식 호흡을 연습합니다. 올바른 호흡은 코어 활성화와 이완의 시작점입니다.',
+      steps:['① 바닥에 누워 무릎을 세웁니다.','② 코로 숨을 들이마시며 갈비뼈를 옆으로 넓힙니다.','③ 입으로 "쏴~" 소리를 내며 배꼽을 척추 쪽으로 당깁니다.','④ 10회 × 3세트 반복합니다.','⑤ 숨을 참지 말고 자연스럽게 이어서 호흡합니다.'],
+      tips:'코로 들이마시고 입으로 내쉬는 것이 핵심. 어깨에 힘을 빼세요.',
+      video:'https://www.youtube.com/results?search_query=필라테스+호흡+운동+초급',
+      info:'https://www.youtube.com/results?search_query=pilates+breathing+technique'
+    },
+    {emoji:'🐱',title:'고양이-소 스트레칭',time:'10분',level:'초급',tags:['척추','유연성'],
+      desc:'척추 전체를 부드럽게 풀어주는 기초 동작. 아침에 기상 후 실시하면 하루 종일 척추 컨디션이 달라집니다.',
+      steps:['① 네발 기기 자세로 손목은 어깨 아래, 무릎은 골반 아래.','② 숨을 내쉬며 등을 둥글게 말고 배꼽을 위로(고양이).','③ 숨을 들이마시며 배를 내리고 가슴과 꼬리뼈를 들어 올립니다(소).','④ 천천히 10회 × 3세트 반복합니다.','⑤ 목도 함께 움직여 척추 전체를 활성화합니다.'],
+      tips:'동작을 빠르게 하지 말고 호흡에 맞춰 천천히. 손목이 아프면 주먹 쥐기.',
+      video:'https://www.youtube.com/results?search_query=고양이소+필라테스+척추스트레칭',
+      info:'https://www.youtube.com/results?search_query=pilates+cat+cow+stretch'
+    },
+    {emoji:'🌉',title:'브릿지',time:'15분',level:'초급',tags:['둔근','코어'],
+      desc:'둔근과 코어를 강화하는 기본 동작. 척추를 분절하며 들어올리면 척추 가동성도 함께 개선됩니다.',
+      steps:['① 바닥에 누워 무릎을 세우고 발은 골반 너비.','② 숨을 내쉬며 꼬리뼈부터 요추, 흉추 순서로 골반을 들어 올립니다.','③ 정점에서 둔근을 꽉 조이며 3초 유지합니다.','④ 흉추, 요추, 꼬리뼈 순서로 천천히 내립니다.','⑤ 12회 × 3세트 반복합니다.'],
+      tips:'허리를 꺾어 올리지 말고 척추를 하나씩 분절하는 느낌으로.',
+      video:'https://www.youtube.com/results?search_query=필라테스+브릿지+둔근+강화',
+      info:'https://www.youtube.com/results?search_query=pilates+bridge+exercise'
+    },
+    {emoji:'🌿',title:"아이 자세 (Child's Pose)",time:'5분',level:'초급',tags:['스트레칭','이완'],
+      desc:'허리와 등을 깊이 이완시키는 회복 자세. 강한 운동 전후 필수 스트레칭입니다.',
+      steps:['① 무릎을 넓게 벌리고 엉덩이를 뒤로 내려앉습니다.','② 팔을 앞으로 뻗어 이마를 바닥에 가볍게 댑니다.','③ 등과 허리가 이완되는 것을 느끼며 30초~1분 유지합니다.','④ 팔을 한쪽씩 뻗어 옆구리 스트레칭도 추가합니다.'],
+      tips:'엉덩이가 뜨면 무릎 사이에 쿠션을 놓아 지지.',
+      video:'https://www.youtube.com/results?search_query=필라테스+아이자세+이완+스트레칭',
+      info:'https://www.youtube.com/results?search_query=pilates+child+pose+relaxation'
+    }
   ],
   core:[
-    {emoji:'💯',title:'헌드레드',time:'10분',level:'중급',tags:['코어','호흡'],desc:'복부 전체를 강화하는 필라테스 대표 동작입니다.',steps:['① 누워 다리를 테이블탑으로 듭니다.','② 머리와 어깨를 들고 팔을 뻗습니다.','③ 팔을 작게 펌핑하며 코로 5번, 입으로 5번 호흡합니다.','④ 총 100번 펌핑을 목표로 합니다.']},
-    {emoji:'🌀',title:'롤업',time:'10분',level:'중급',tags:['복근','척추'],desc:'척추를 분절하며 복근을 깊이 자극합니다.',steps:['① 다리를 뻗고 팔을 머리 위로.','② 천천히 척추를 굴려 상체를 세웁니다.','③ 앞으로 뻗은 후 다시 눕습니다.','④ 8회 × 3세트 반복합니다.']},
-    {emoji:'✂️',title:'크리스크로스',time:'10분',level:'중급',tags:['사선복근','회전'],desc:'사선 복근을 강화합니다.',steps:['① 손을 머리 뒤에 두고 다리를 테이블탑.','② 오른 어깨를 왼 무릎으로, 오른 다리를 뻗습니다.','③ 반대쪽으로 교차합니다.','④ 10세트 × 3회 반복합니다.']}
+    {emoji:'💯',title:'헌드레드',time:'10분',level:'중급',tags:['코어','호흡'],
+      desc:'복부 전체를 강화하는 필라테스 대표 동작. 혈액순환을 촉진하고 심부 복근을 깨웁니다.',
+      steps:['① 누워 다리를 테이블탑(90도)으로 들어 올립니다.','② 머리와 어깨를 말아 올리고 팔을 옆으로 뻗습니다.','③ 팔을 위아래로 작게 펌핑하며 코로 5회, 입으로 5회 호흡.','④ 총 100번 펌핑을 목표로 합니다.','⑤ 더 어렵게 하려면 다리를 45도로 뻗습니다.'],
+      tips:'턱을 가슴 쪽으로 살짝 당겨 목 근육 긴장을 줄이세요.',
+      video:'https://www.youtube.com/results?search_query=필라테스+헌드레드+코어운동',
+      info:'https://www.youtube.com/results?search_query=pilates+hundred+exercise'
+    },
+    {emoji:'🌀',title:'롤업',time:'10분',level:'중급',tags:['복근','척추'],
+      desc:'척추를 분절하며 복근을 깊이 자극합니다. 윗몸일으키기보다 훨씬 효과적으로 복부 전체를 사용합니다.',
+      steps:['① 다리를 뻗고 팔을 머리 위로 들어 올립니다.','② 숨을 들이마시고, 내쉬며 팔부터 머리-상체 순서로 천천히 말아 올립니다.','③ 앞으로 최대한 뻗은 후 다시 내쉬며 척추를 하나씩 내려 눕힙니다.','④ 8회 × 3세트 반복합니다.','⑤ 처음엔 무릎을 살짝 구부려 실시해도 됩니다.'],
+      tips:'빠르게 올라오지 말고 척추 마디마디를 느끼며 천천히.',
+      video:'https://www.youtube.com/results?search_query=필라테스+롤업+복근운동',
+      info:'https://www.youtube.com/results?search_query=pilates+roll+up+exercise'
+    },
+    {emoji:'✂️',title:'크리스크로스',time:'10분',level:'중급',tags:['사선복근','회전'],
+      desc:'사선 복근(내·외복사근)을 집중 강화합니다. 허리 라인을 만들고 척추 회전성을 개선합니다.',
+      steps:['① 손을 머리 뒤에 두고 다리를 테이블탑으로 듭니다.','② 숨을 내쉬며 오른 어깨를 왼 무릎 쪽으로 향하고 오른 다리를 뻗습니다.','③ 반대쪽으로 교차합니다 (좌우 1회).','④ 10세트 × 3회 반복합니다.','⑤ 팔꿈치를 귀 뒤로 유지하고 목을 당기지 마세요.'],
+      tips:'어깨를 교차시키는 것이지 팔꿈치를 무릎에 대는 게 아닙니다.',
+      video:'https://www.youtube.com/results?search_query=필라테스+크리스크로스+사선복근',
+      info:'https://www.youtube.com/results?search_query=pilates+criss+cross+exercise'
+    },
+    {emoji:'🎪',title:'더블레그스트레치',time:'10분',level:'중급',tags:['코어','전신'],
+      desc:'팔과 다리를 동시에 뻗어 코어 안정성을 극대화합니다. 복근과 등 근육을 함께 강화합니다.',
+      steps:['① 누워 무릎을 가슴으로 당기고 머리를 들어 올립니다.','② 숨을 들이마시며 팔과 다리를 동시에 대각선으로 뻗습니다.','③ 숨을 내쉬며 무릎을 다시 가슴으로 당깁니다.','④ 8~10회 × 3세트 반복합니다.','⑤ 허리가 바닥에서 뜨면 다리 각도를 높여 실시합니다.'],
+      tips:'허리가 바닥에 붙어 있어야 안전합니다. 처음엔 한 다리씩 시작.',
+      video:'https://www.youtube.com/results?search_query=필라테스+더블레그스트레치+코어',
+      info:'https://www.youtube.com/results?search_query=pilates+double+leg+stretch'
+    }
   ],
   stretch:[
-    {emoji:'🧘',title:'척추 비틀기',time:'10분',level:'초급',tags:['척추','유연성'],desc:'앉아서 척추를 회전시켜 이완합니다.',steps:['① 앉아서 다리를 뻗고 팔을 옆으로.','② 숨을 들이마시며 척추를 늘립니다.','③ 내쉬며 오른쪽으로 두 번 비틉니다.','④ 좌우 각 5회 반복합니다.']},
-    {emoji:'🌊',title:'어깨 & 가슴 열기',time:'10분',level:'초급',tags:['어깨','자세교정'],desc:'굽은 어깨와 가슴을 열어주는 스트레칭입니다.',steps:['① 두 손을 등 뒤에서 깍지 낍니다.','② 가슴을 앞으로 열고 어깨를 뒤로 당깁니다.','③ 10초간 유지 후 풀어줍니다.','④ 5회 반복합니다.']}
+    {emoji:'🧘',title:'척추 비틀기',time:'10분',level:'초급',tags:['척추','유연성'],
+      desc:'앉아서 척추를 회전시켜 이완합니다. 책상 앞에 오래 앉은 날 특히 효과적입니다.',
+      steps:['① 다리를 뻗고 앉아 팔을 어깨 높이로 옆으로 펼칩니다.','② 숨을 들이마시며 척추를 길게 늘립니다.','③ 숨을 내쉬며 오른쪽으로 두 번 비틉니다 (처음엔 부드럽게, 두 번째는 깊게).','④ 돌아와 반대쪽을 실시합니다. 좌우 각 5회.','⑤ 어깨와 팔이 같은 높이를 유지하는지 확인합니다.'],
+      tips:'엉덩이가 바닥에서 뜨지 않도록, 하체는 고정하고 상체만 회전.',
+      video:'https://www.youtube.com/results?search_query=필라테스+척추비틀기+스트레칭',
+      info:'https://www.youtube.com/results?search_query=pilates+spine+twist+stretch'
+    },
+    {emoji:'🌊',title:'어깨 & 가슴 열기',time:'10분',level:'초급',tags:['어깨','자세교정'],
+      desc:'굽은 어깨와 가슴을 열어주는 스트레칭. 거북목·라운드 숄더 교정에 매우 효과적입니다.',
+      steps:['① 두 손을 등 뒤에서 깍지 낍니다.','② 가슴을 앞으로 활짝 열고 어깨 날개뼈를 뒤로 모읍니다.','③ 턱은 살짝 들고 시선은 앞 위쪽을 바라봅니다.','④ 10초간 유지 후 풀어줍니다.','⑤ 5회 반복 후 팔을 바꿔 더 깊은 스트레칭을 합니다.'],
+      tips:'팔이 잘 안 올라가면 수건이나 밴드를 잡고 실시해도 좋습니다.',
+      video:'https://www.youtube.com/results?search_query=필라테스+어깨+가슴열기+자세교정',
+      info:'https://www.youtube.com/results?search_query=pilates+chest+shoulder+opening+stretch'
+    },
+    {emoji:'🦢',title:'백조 자세 (Swan)',time:'10분',level:'초급',tags:['등','자세교정'],
+      desc:'엎드려 상체를 들어올려 척추를 신전시킵니다. 등 근육 강화와 자세 개선에 탁월합니다.',
+      steps:['① 엎드려 손을 어깨 아래에 놓습니다.','② 숨을 들이마시며 팔을 이용해 상체를 천천히 들어 올립니다.','③ 배는 바닥으로 내리고 어깨는 귀에서 멀게 유지합니다.','④ 5초 유지 후 천천히 내려옵니다.','⑤ 8회 × 3세트 반복합니다.'],
+      tips:'허리에 통증이 있으면 팔꿈치로만 지지하는 스핑크스 자세로 대체.',
+      video:'https://www.youtube.com/results?search_query=필라테스+스완+백조자세+등강화',
+      info:'https://www.youtube.com/results?search_query=pilates+swan+back+extension'
+    },
+    {emoji:'🦋',title:'고관절 굴근 스트레칭',time:'8분',level:'초급',tags:['골반','유연성'],
+      desc:'장시간 앉아 있으면 굳어지는 고관절 굴근을 이완합니다. 허리 통증 예방에 매우 효과적입니다.',
+      steps:['① 런지 자세로 오른 무릎을 앞으로 내밉니다.','② 왼 무릎을 바닥에 대고 골반을 앞으로 밀어줍니다.','③ 상체를 세우고 고관절 앞쪽이 늘어나는 것을 느낍니다.','④ 30초 유지 후 반대쪽을 실시합니다.','⑤ 좌우 각 3회 반복합니다.'],
+      tips:'골반이 한쪽으로 기울지 않도록 정면을 바라보고 실시.',
+      video:'https://www.youtube.com/results?search_query=필라테스+고관절굴근+스트레칭',
+      info:'https://www.youtube.com/results?search_query=pilates+hip+flexor+stretch'
+    }
   ],
   advanced:[
-    {emoji:'🎯',title:'티저',time:'15분',level:'고급',tags:['전신','균형'],desc:'전신 코어를 시험하는 고급 동작입니다.',steps:['① 무릎을 구부린 채 V자로 듭니다(변형).','② 익숙해지면 다리를 45도로 뻗습니다.','③ 팔은 다리와 평행하게 뻗습니다.','④ 5초 유지 후 내립니다. 8회 × 3세트.']},
-    {emoji:'🏄',title:'수영',time:'10분',level:'중급',tags:['등','전신'],desc:'등 근육 전체를 강화하는 동작입니다.',steps:['① 엎드려 팔과 다리를 들어 올립니다.','② 오른팔-왼다리, 왼팔-오른다리를 교대.','③ 리드미컬하게 10회 교차합니다.','④ 3세트 반복합니다.']}
+    {emoji:'🎯',title:'티저',time:'15분',level:'고급',tags:['전신','균형'],
+      desc:'전신 코어를 시험하는 고급 동작. 복근, 척추 굴근, 균형 감각이 모두 필요합니다.',
+      steps:['① 누워 무릎을 구부린 채 상체와 다리를 동시에 V자로 들어 올립니다(변형).','② 팔은 다리와 평행하게 앞으로 뻗습니다.','③ 익숙해지면 다리를 45도로 뻗어 완전한 티저를 시도합니다.','④ 5초 유지 후 천천히 내립니다.','⑤ 8회 × 3세트 반복합니다.'],
+      tips:'처음엔 손을 바닥에 짚어 지지하며 시작. 허리가 아프면 즉시 중단.',
+      video:'https://www.youtube.com/results?search_query=필라테스+티저+고급동작',
+      info:'https://www.youtube.com/results?search_query=pilates+teaser+exercise'
+    },
+    {emoji:'🏄',title:'수영',time:'10분',level:'중급',tags:['등','전신'],
+      desc:'등 근육 전체를 강화하고 척추 신전 근육을 단련합니다. 체력 향상과 자세 교정에 효과적입니다.',
+      steps:['① 엎드려 팔은 앞으로, 다리는 뒤로 뻗습니다.','② 오른팔과 왼다리를 함께 들어 올립니다.','③ 빠른 리듬으로 교대하며 수영하듯 움직입니다.','④ 10회 교차 × 3세트 반복합니다.','⑤ 배꼽을 바닥에서 살짝 들어 코어를 함께 활성화합니다.'],
+      tips:'고개는 너무 높이 들지 말고 척추의 연장선을 유지.',
+      video:'https://www.youtube.com/results?search_query=필라테스+수영동작+등근육강화',
+      info:'https://www.youtube.com/results?search_query=pilates+swimming+exercise'
+    },
+    {emoji:'🌙',title:'사이드 레그 킥',time:'12분',level:'중급',tags:['다리','골반'],
+      desc:'옆으로 누워 다리를 차올리는 동작. 고관절 유연성과 외전근을 강화합니다.',
+      steps:['① 옆으로 누워 머리를 손으로 받칩니다.','② 위쪽 다리를 앞으로 차올리며 엉덩이를 최대한 굴곡합니다.','③ 다시 뒤로 부드럽게 뻗습니다.','④ 10회 × 3세트 후 반대쪽을 실시합니다.','⑤ 몸통이 앞뒤로 흔들리지 않도록 복부를 고정합니다.'],
+      tips:'다리를 차올릴 때 발끝을 뒤집으면 햄스트링도 함께 자극됩니다.',
+      video:'https://www.youtube.com/results?search_query=필라테스+사이드킥+레그킥+고관절',
+      info:'https://www.youtube.com/results?search_query=pilates+side+kick+series'
+    },
+    {emoji:'⚡',title:'플랭크 변형 시리즈',time:'15분',level:'고급',tags:['전신','코어'],
+      desc:'기본 플랭크에서 다리 들기, 팔 들기 등 변형을 추가해 전신 근지구력을 극한까지 끌어올립니다.',
+      steps:['① 팔꿈치 플랭크로 시작 — 몸을 일직선으로 유지합니다.','② 30초 기본 플랭크 후 오른 다리를 3초간 들어 올립니다.','③ 내려 놓고 왼 다리를 반복합니다 (총 10회).','④ 이어서 한 팔 들기 → 사이드 플랭크로 전환합니다.','⑤ 3세트 진행, 세트 간 30초 휴식합니다.'],
+      tips:'엉덩이가 너무 올라가거나 내려가지 않도록 거울이나 영상으로 확인.',
+      video:'https://www.youtube.com/results?search_query=필라테스+플랭크+변형+전신코어',
+      info:'https://www.youtube.com/results?search_query=pilates+plank+variations+core'
+    }
   ]
 };
 window.selHtCat=function(cat,el){document.querySelectorAll('.ht-tab').forEach(b=>b.classList.remove('active'));el.classList.add('active');renderHt(cat);};
@@ -1079,8 +1240,13 @@ window.openHtModal=function(i,cat){
     <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px;">${ex.tags.map(t=>`<span class="tag-g">${t}</span>`).join('')}<span class="tag-t">⏱ ${ex.time}</span><span class="tag-l">${ex.level}</span></div>
     <p style="font-size:13px;color:var(--mid);line-height:1.7;margin-bottom:12px;">${ex.desc}</p>
     <div style="font-size:11px;font-weight:700;color:var(--mid);margin-bottom:8px;letter-spacing:0.04em;">운동 방법</div>
-    <div style="font-size:13px;line-height:2;">${ex.steps.join('<br>')}</div>
-    <button class="btn-f" style="margin-top:16px;" onclick="closeModal('htModal');switchTab('hometraining');toggleTimer();">▶ 타이머 시작</button>`;
+    <div style="font-size:13px;line-height:2;margin-bottom:14px;">${ex.steps.join('<br>')}</div>
+    ${ex.tips?`<div style="background:#F0F9F4;border-left:3px solid var(--g2);padding:10px 12px;border-radius:0 8px 8px 0;font-size:12px;color:#2A5C3A;line-height:1.6;margin-bottom:14px;">💡 ${ex.tips}</div>`:''}
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;">
+      ${ex.video?`<a href="${ex.video}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:4px;background:#FF0000;color:#fff;padding:7px 16px;border-radius:20px;font-size:12px;font-weight:700;text-decoration:none;">▶ 유튜브 영상</a>`:''}
+      ${ex.info?`<a href="${ex.info}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:4px;background:var(--g2);color:#fff;padding:7px 16px;border-radius:20px;font-size:12px;font-weight:700;text-decoration:none;">🔍 관련 정보</a>`:''}
+    </div>
+    <button class="btn-f" onclick="closeModal('htModal');switchTab('hometraining');toggleTimer();">▶ 타이머 시작</button>`;
   openModal('htModal');
 };
 
