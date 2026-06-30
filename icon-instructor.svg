@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Background -->
+  <rect width="512" height="512" fill="#1E1E1B"/>
+
+  <!-- Soft green glow circle -->
+  <circle cx="256" cy="230" r="190" fill="#2A7A5A" opacity="0.18"/>
+
+  <!-- Instructor figure (standing, arms open — teaching pose) -->
+  <!-- Head -->
+  <circle cx="256" cy="118" r="52" fill="#7ECBA0"/>
+  <!-- Neck + Torso -->
+  <rect x="232" y="168" width="48" height="134" rx="24" fill="#7ECBA0"/>
+  <!-- Left arm (outstretched) -->
+  <rect x="88" y="196" width="142" height="30" rx="15" fill="#7ECBA0" transform="rotate(-8 159 211)"/>
+  <!-- Right arm (outstretched) -->
+  <rect x="282" y="196" width="142" height="30" rx="15" fill="#7ECBA0" transform="rotate(8 353 211)"/>
+  <!-- Left leg -->
+  <rect x="212" y="296" width="42" height="116" rx="21" fill="#7ECBA0" transform="rotate(-7 233 354)"/>
+  <!-- Right leg -->
+  <rect x="258" y="296" width="42" height="116" rx="21" fill="#7ECBA0" transform="rotate(7 279 354)"/>
+
+  <!-- Gold crown badge (강사 상징) -->
+  <g transform="translate(372,88)">
+    <circle r="56" fill="#C4A055"/>
+    <!-- Crown shape -->
+    <polygon points="0,-30 -22,-6 -38,24 0,14 38,24 22,-6" fill="white"/>
+    <circle cx="-26" cy="-18" r="6" fill="white"/>
+    <circle cx="0" cy="-30" r="6" fill="white"/>
+    <circle cx="26" cy="-18" r="6" fill="white"/>
+  </g>
+
+  <!-- Bottom label bar -->
+  <rect x="0" y="440" width="512" height="72" fill="#2A7A5A"/>
+  <text x="256" y="488" font-family="'Noto Sans KR',Arial,sans-serif" font-size="40" font-weight="700" fill="white" text-anchor="middle" letter-spacing="4">강사 앱</text>
+</svg>
