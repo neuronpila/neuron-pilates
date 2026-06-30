@@ -539,6 +539,9 @@ let memberId = null;
 let dietFileData = null;
 let aiKcal = null;
 let timerInterval=null, timerSecs=0, timerRunning=false;
+// 아바타: hidden input은 대용량 base64를 잘라내므로 JS 변수에 저장
+let _obAvatar = '🧘';   // 온보딩 화면용
+let _profAvatar = null; // 프로필 편집용
 
 const AVATAR_EMOJIS = ['🧘','💪','🌿','⭐','🌸','🦋','🌺','🌻','👑','💎','🌙','☀️','🌊','🦩','🌱','🍃','🎯','✨','🔥','🏆','🌈','🦚','🌷','🍀'];
 
@@ -551,7 +554,7 @@ function buildEmojiGrid(gridId, hiddenId, previewId) {
     btn.addEventListener('click',()=>{
       inner.querySelectorAll('.eg-btn').forEach(b=>b.classList.remove('selected'));
       btn.classList.add('selected');
-      document.getElementById(hiddenId).value = btn.dataset.em;
+      _profAvatar = btn.dataset.em; // JS 변수에 저장
       const prev=document.getElementById(previewId);
       prev.innerHTML=btn.dataset.em;
       prev.style.fontSize='30px';
@@ -566,9 +569,10 @@ function buildObEmojiGrid() {
     btn.addEventListener('click',()=>{
       inner.querySelectorAll('.ob-eg-btn').forEach(b=>b.classList.remove('selected'));
       btn.classList.add('selected');
-      document.getElementById('obAvatarVal').value=btn.dataset.em;
+      _obAvatar = btn.dataset.em;
       const prev=document.getElementById('obAvPreview');
       prev.innerHTML=btn.dataset.em;
+      prev.style.fontSize='';
     });
   });
 }
@@ -582,9 +586,9 @@ window.handleObAvatarFile=function(e){
   const file=e.target.files[0];if(!file)return;
   const reader=new FileReader();
   reader.onload=ev=>{
+    _obAvatar=ev.target.result; // JS 변수에 저장 (hidden input은 truncate됨)
     const prev=document.getElementById('obAvPreview');
     prev.innerHTML=`<img src="${ev.target.result}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
-    document.getElementById('obAvatarVal').value=ev.target.result;
   };
   reader.readAsDataURL(file);
 };
@@ -598,9 +602,9 @@ window.handleProfAvatarFile=function(e){
   const file=e.target.files[0];if(!file)return;
   const reader=new FileReader();
   reader.onload=ev=>{
+    _profAvatar=ev.target.result; // JS 변수에 저장
     const prev=document.getElementById('profAvPreview');
     prev.innerHTML=`<img src="${ev.target.result}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
-    document.getElementById('profAvatarVal').value=ev.target.result;
   };
   reader.readAsDataURL(file);
 };
@@ -622,9 +626,9 @@ function saveLocal(){localStorage.setItem('np_member_v3',JSON.stringify(mData));
 window.startApp = async function(){
   const name=document.getElementById('inputName').value.trim();
   if(!name){showToast('이름을 입력해 주세요');return;}
-  const avatar=document.getElementById('obAvatarVal').value||'🧘';
   mData.name=name;mData.class=document.getElementById('inputClass').value;
-  mData.avatar=avatar;mData.bookings=mData.bookings||[];
+  mData.avatar=_obAvatar||'🧘'; // JS 변수에서 읽음
+  mData.bookings=mData.bookings||[];
   saveLocal();
   const snap=await getDocs(query(collection(db,'members'),where('name','==',name)));
   if(!snap.empty){memberId=snap.docs[0].id;mData.memberId=memberId;saveLocal();}
@@ -648,11 +652,11 @@ function initApp(){
 window.openModal=function(id){
   if(id==='profileModal'){
     const av=mData.avatar||'🧘';
+    _profAvatar=av; // 현재 아바타로 초기화
     const prev=document.getElementById('profAvPreview');
     const isUrl=av.startsWith('http')||av.startsWith('data');
     if(isUrl){prev.innerHTML=`<img src="${av}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;}
     else{prev.innerHTML=av;prev.style.fontSize='30px';}
-    document.getElementById('profAvatarVal').value=av;
     document.getElementById('profName').value=mData.name||'';
     const sel=document.getElementById('profClass');
     for(let i=0;i<sel.options.length;i++){if(sel.options[i].value===mData.class){sel.selectedIndex=i;break;}}
@@ -665,9 +669,16 @@ window.saveProfile=function(){
   const name=document.getElementById('profName').value.trim();
   if(!name){showToast('이름을 입력하세요');return;}
   mData.name=name;mData.class=document.getElementById('profClass').value;
-  const av=document.getElementById('profAvatarVal').value;
-  if(av)mData.avatar=av;
-  saveLocal();
+  if(_profAvatar)mData.avatar=_profAvatar; // JS 변수에서 읽음
+  // base64 이미지는 localStorage 용량(~5MB)을 초과할 수 있으므로 try/catch
+  try{saveLocal();}
+  catch(e){
+    // 용량 초과 시 아바타만 이모지로 폴백
+    const fallback=AVATAR_EMOJIS[0];
+    mData.avatar=fallback;_profAvatar=fallback;
+    saveLocal();
+    showToast('사진 용량이 커서 이모지로 저장됩니다');
+  }
   setHdrAvatar(mData.avatar);
   document.getElementById('hdrName').textContent=mData.name+'님';
   document.getElementById('hdrClass').textContent='뉴런필라테스 · '+mData.class;
@@ -876,33 +887,102 @@ window.highlightMuscle=function(key){
     <div style="display:flex;gap:6px;flex-wrap:wrap;">${info.exercises.map(e=>`<span class="tag-g">${e}</span>`).join('')}</div>`;
 };
 
-// ── DIET ──
-const GEMINI_API_KEY='AQ.Ab8RN6LpIWcFBaF7fw6fSRvoGBNxizvYMOcTk4LX5Q9qIW_TpA';
+// ── DIET / GEMINI ──
+// ★ Gemini API 키를 아래에 입력하세요 (Google AI Studio: https://aistudio.google.com/app/apikey)
+const GEMINI_API_KEY = 'AIzaSy여기에본인키입력';
+
+function extractJson(text) {
+  // ```json ... ``` 또는 ``` ... ``` 블록 제거
+  let clean = text.replace(/```json/gi,'').replace(/```/g,'').trim();
+  // 중괄호 블록만 추출 (앞뒤 불필요한 텍스트 제거)
+  const match = clean.match(/\{[\s\S]*\}/);
+  if(match) clean = match[0];
+  return JSON.parse(clean);
+}
+
 window.handleDietUpload=function(e){
   const file=e.target.files[0];if(!file)return;
   dietFileData=file;
   const reader=new FileReader();
   reader.onload=async ev=>{
-    const base64=ev.target.result.split(',')[1];
+    const dataUrl=ev.target.result;
+    const base64=dataUrl.split(',')[1];
+    const mimeType=file.type||'image/jpeg';
+
     document.getElementById('dietPreview').innerHTML=`
-      <img src="${ev.target.result}" style="width:100%;border-radius:12px;max-height:200px;object-fit:cover;margin-bottom:10px;">
-      <div id="aiCalResult" style="background:var(--cream);border-radius:12px;padding:12px;font-size:13px;color:var(--mid);">🤖 AI가 칼로리를 분석 중입니다...</div>`;
+      <img src="${dataUrl}" style="width:100%;border-radius:12px;max-height:220px;object-fit:cover;margin-bottom:12px;">
+      <div id="aiCalResult" style="background:var(--cream);border-radius:14px;padding:14px;font-size:13px;color:var(--mid);display:flex;align-items:center;gap:10px;">
+        <span style="font-size:20px;animation:spin 1s linear infinite;display:inline-block;">⏳</span>
+        <span>AI가 음식을 분석하고 있어요...</span>
+      </div>`;
     document.getElementById('dietSubmitBtn').style.display='block';
+
+    // API 키가 기본값이면 분석 스킵
+    if(GEMINI_API_KEY.includes('여기에본인키입력')){
+      aiKcal=null;
+      document.getElementById('aiCalResult').innerHTML=`
+        <div style="font-size:12px;color:var(--mid);">
+          ⚠ Gemini API 키를 설정해야 자동 분석이 됩니다.<br>
+          <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:var(--g2);">API 키 발급받기 →</a>
+        </div>`;
+      return;
+    }
+
     try{
-      const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,{
-        method:'POST',headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({contents:[{parts:[{inline_data:{mime_type:file.type,data:base64}},{text:'이 식단 사진을 분석해서 JSON 형식으로만 답해주세요. 다른 말은 절대 하지 마세요. 마크다운 없이 순수 JSON만. 형식: {"foods":["음식1","음식2"],"totalKcal":숫자,"breakdown":[{"name":"음식명","kcal":숫자}]}'}]}],generationConfig:{temperature:0.1,maxOutputTokens:512}})
-      });
+      const res=await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
+        {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({
+            contents:[{parts:[
+              {inline_data:{mime_type:mimeType, data:base64}},
+              {text:'이 식단 사진에 있는 음식들을 분석해서 칼로리를 추정해주세요. 반드시 JSON 형식으로만 답하세요. 다른 설명 없이 순수 JSON만. 형식: {"foods":["음식명1","음식명2"],"totalKcal":숫자,"breakdown":[{"name":"음식명","kcal":숫자,"amount":"1인분"}]}'}
+            ]}],
+            generationConfig:{temperature:0.2,maxOutputTokens:1024}
+          })
+        }
+      );
+
+      if(!res.ok){
+        const errBody=await res.text();
+        throw new Error(`HTTP ${res.status}: ${errBody}`);
+      }
+
       const data=await res.json();
-      const json=JSON.parse(data.candidates[0].content.parts[0].text.replace(/```json|```/g,'').trim());
+
+      // 응답 구조 검증
+      if(data.error){throw new Error(data.error.message||JSON.stringify(data.error));}
+      if(!data.candidates||!data.candidates[0]){throw new Error('응답에 candidates가 없습니다.');}
+
+      const rawText=data.candidates[0].content.parts[0].text;
+      const json=extractJson(rawText);
+
       aiKcal=json.totalKcal;
       document.getElementById('aiCalResult').innerHTML=`
-        <div style="font-size:12px;font-weight:700;color:var(--g2);margin-bottom:6px;">🤖 AI 칼로리 분석 완료</div>
-        <div style="font-family:'Inter',sans-serif;font-size:24px;font-weight:800;color:var(--stone);margin-bottom:8px;">${json.totalKcal} kcal</div>
-        <div style="display:flex;flex-wrap:wrap;gap:5px;">${json.breakdown.map(b=>`<span style="background:var(--white);padding:3px 9px;border-radius:10px;font-size:11px;">${b.name} <b>${b.kcal}</b>kcal</span>`).join('')}</div>`;
+        <div style="margin-bottom:8px;display:flex;align-items:center;gap:6px;">
+          <span style="font-size:16px;">🤖</span>
+          <span style="font-size:12px;font-weight:700;color:var(--g2);">AI 칼로리 분석 완료</span>
+        </div>
+        <div style="font-family:'Inter',sans-serif;font-size:28px;font-weight:800;color:var(--stone);margin-bottom:10px;">${json.totalKcal} <span style="font-size:14px;font-weight:500;color:var(--mid);">kcal</span></div>
+        <div style="display:flex;flex-wrap:wrap;gap:5px;">
+          ${(json.breakdown||[]).map(b=>`
+            <div style="background:var(--white);padding:5px 10px;border-radius:10px;font-size:11px;border:1px solid rgba(0,0,0,0.06);">
+              <span>${b.name}</span>
+              ${b.amount?`<span style="color:var(--mid);"> · ${b.amount}</span>`:''}
+              <b style="color:var(--g2);margin-left:4px;">${b.kcal}kcal</b>
+            </div>`).join('')}
+        </div>
+        <div style="margin-top:10px;font-size:11px;color:var(--mid);">
+          🍽 인식된 음식: ${(json.foods||[]).join(', ')}
+        </div>`;
     }catch(err){
       aiKcal=null;
-      document.getElementById('aiCalResult').innerHTML=`<div style="font-size:12px;color:var(--mid);">⚠ AI 분석 실패. 수동으로 입력해 주세요.</div>`;
+      console.error('Gemini 오류:', err);
+      document.getElementById('aiCalResult').innerHTML=`
+        <div style="font-size:12px;color:var(--red);font-weight:600;margin-bottom:4px;">⚠ AI 분석 실패</div>
+        <div style="font-size:11px;color:var(--mid);word-break:break-all;">${err.message}</div>
+        <div style="font-size:11px;color:var(--mid);margin-top:6px;">API 키를 확인하거나 수동으로 칼로리를 입력해 주세요.</div>`;
     }
   };
   reader.readAsDataURL(file);
