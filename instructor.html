@@ -1096,21 +1096,36 @@ async function runGeminiAnalysis(imgUrl){
   document.getElementById('geminiSetupBox').style.display='none';
   document.getElementById('dietAiResult').innerHTML=`
     <div style="background:#F0F9F4;border-radius:12px;padding:12px;display:flex;align-items:center;gap:10px;font-size:12px;color:#2A7A5A;">
-      <span style="font-size:18px;animation:spin 1s linear infinite;display:inline-block;">⏳</span>
-      <span>AI가 칼로리를 분석하고 있어요...</span>
+      <span style="font-size:18px;">⏳</span><span>AI가 칼로리를 분석하고 있어요...</span>
     </div>`;
+
+  const ctrl=new AbortController();
+  const tid=setTimeout(()=>ctrl.abort(),25000);
+
+  function showKeyBox(msg){
+    clearTimeout(tid);
+    localStorage.removeItem('np_gemini_key');
+    document.getElementById('dietAiResult').innerHTML=`<div style="font-size:11px;color:#C0392B;margin-bottom:6px;">⚠ ${msg}</div>`;
+    document.getElementById('geminiSetupBox').style.display='block';
+  }
+
   try{
-    const imgRes=await fetch(imgUrl);
-    const blob=await imgRes.blob();
-    const mimeType=blob.type||'image/jpeg';
-    const base64=await new Promise(r=>{
-      const rd=new FileReader();
-      rd.onloadend=()=>r(rd.result.split(',')[1]);
-      rd.readAsDataURL(blob);
-    });
+    let base64,mimeType;
+    try{
+      const imgRes=await fetch(imgUrl,{signal:ctrl.signal});
+      if(!imgRes.ok)throw new Error(`이미지 로드 실패 HTTP ${imgRes.status}`);
+      const blob=await imgRes.blob();
+      mimeType=blob.type||'image/jpeg';
+      base64=await new Promise(r=>{const rd=new FileReader();rd.onloadend=()=>r(rd.result.split(',')[1]);rd.readAsDataURL(blob);});
+    }catch(imgErr){
+      clearTimeout(tid);
+      document.getElementById('dietAiResult').innerHTML=`<div style="background:#FEF0EE;border-radius:10px;padding:10px;font-size:11px;color:#C0392B;">⚠ 이미지 로드 실패: ${imgErr.message}</div>`;
+      return;
+    }
+
     const apiRes=await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${encodeURIComponent(key)}`,
-      {method:'POST',headers:{'Content-Type':'application/json'},
+      {method:'POST',headers:{'Content-Type':'application/json'},signal:ctrl.signal,
         body:JSON.stringify({
           contents:[{parts:[
             {inline_data:{mime_type:mimeType,data:base64}},
@@ -1120,10 +1135,18 @@ async function runGeminiAnalysis(imgUrl){
         })
       }
     );
+    clearTimeout(tid);
+
+    if(apiRes.status===400||apiRes.status===401||apiRes.status===403){
+      showKeyBox('API 키가 유효하지 않습니다. 새 키를 입력해 주세요.');
+      return;
+    }
     if(!apiRes.ok){const e=await apiRes.text();throw new Error(`HTTP ${apiRes.status}: ${e}`);}
+
     const data=await apiRes.json();
-    if(data.error)throw new Error(data.error.message||'API 오류');
+    if(data.error){showKeyBox('API 오류: '+data.error.message);return;}
     if(!data.candidates||!data.candidates[0])throw new Error('응답 없음');
+
     const json=extractJson(data.candidates[0].content.parts[0].text);
     document.getElementById('dietKcal').value=json.totalKcal||'';
     document.getElementById('dietAiResult').innerHTML=`
@@ -1135,30 +1158,20 @@ async function runGeminiAnalysis(imgUrl){
         <div style="font-size:24px;font-weight:800;color:#1A3A28;margin-bottom:8px;">${json.totalKcal} <span style="font-size:13px;font-weight:500;color:#666;">kcal</span></div>
         ${(json.protein||json.carbs||json.fat)?`
         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-bottom:8px;">
-          <div style="background:#EBF5F0;border-radius:8px;padding:6px;text-align:center;">
-            <div style="font-size:9px;color:#666;margin-bottom:1px;">단백질</div>
-            <div style="font-size:13px;font-weight:800;color:#2A7A5A;">${json.protein||0}g</div>
-          </div>
-          <div style="background:#FFF8E7;border-radius:8px;padding:6px;text-align:center;">
-            <div style="font-size:9px;color:#666;margin-bottom:1px;">탄수화물</div>
-            <div style="font-size:13px;font-weight:800;color:#C4A055;">${json.carbs||0}g</div>
-          </div>
-          <div style="background:#FEF0EE;border-radius:8px;padding:6px;text-align:center;">
-            <div style="font-size:9px;color:#666;margin-bottom:1px;">지방</div>
-            <div style="font-size:13px;font-weight:800;color:#D9634E;">${json.fat||0}g</div>
-          </div>
+          <div style="background:#EBF5F0;border-radius:8px;padding:6px;text-align:center;"><div style="font-size:9px;color:#666;">단백질</div><div style="font-size:13px;font-weight:800;color:#2A7A5A;">${json.protein||0}g</div></div>
+          <div style="background:#FFF8E7;border-radius:8px;padding:6px;text-align:center;"><div style="font-size:9px;color:#666;">탄수화물</div><div style="font-size:13px;font-weight:800;color:#C4A055;">${json.carbs||0}g</div></div>
+          <div style="background:#FEF0EE;border-radius:8px;padding:6px;text-align:center;"><div style="font-size:9px;color:#666;">지방</div><div style="font-size:13px;font-weight:800;color:#D9634E;">${json.fat||0}g</div></div>
         </div>`:''}
         <div style="font-size:10px;color:#666;">🍽 ${(json.foods||[]).join(' · ')}</div>
       </div>`;
   }catch(err){
+    clearTimeout(tid);
     console.error('Gemini 오류:',err);
-    const isAuth=err.message&&(err.message.includes('400')||err.message.includes('401')||err.message.includes('403'));
-    document.getElementById('dietAiResult').innerHTML=`
-      <div style="background:#FEF0EE;border-radius:10px;padding:10px;font-size:11px;">
-        <div style="color:#C0392B;font-weight:600;margin-bottom:4px;">⚠ AI 분석 실패</div>
-        <div style="color:#666;word-break:break-all;margin-bottom:6px;">${err.message}</div>
-        ${isAuth?`<div style="color:#666;">API 키 오류입니다. <span onclick="localStorage.removeItem('np_gemini_key');document.getElementById('geminiSetupBox').style.display='block';" style="color:#2A7A5A;cursor:pointer;font-weight:600;">키 재설정 →</span></div>`:''}
-      </div>`;
+    if(err.name==='AbortError'){
+      document.getElementById('dietAiResult').innerHTML=`<div style="background:#FEF0EE;border-radius:10px;padding:10px;font-size:11px;color:#C0392B;">⚠ 분析 시간 초과 (25초). 네트워크 상태를 확인해 주세요.</div>`;
+    }else{
+      document.getElementById('dietAiResult').innerHTML=`<div style="background:#FEF0EE;border-radius:10px;padding:10px;font-size:11px;color:#C0392B;">⚠ AI 분析 실패: ${err.message}</div>`;
+    }
   }
 }
 
