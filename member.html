@@ -427,14 +427,6 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--cream);color:var(--s
           </label>
           <input type="file" id="dietFile" accept="image/*" style="display:none;" onchange="handleDietUpload(event)">
           <div id="dietPreview" style="margin-top:12px;"></div>
-          <div id="geminiSetupBox" style="display:none;background:#FFF8E7;border:1px solid #E0C060;border-radius:12px;padding:14px;margin-top:10px;">
-            <div style="font-size:12px;font-weight:700;color:#B8860B;margin-bottom:8px;">🔑 Gemini API 키 설정 필요</div>
-            <div style="font-size:11px;color:var(--mid);margin-bottom:8px;line-height:1.7;">
-              <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener" style="color:var(--g2);font-weight:600;">Google AI Studio</a>에서 발급받은 API 키를 입력하세요.<br>키는 이 기기에만 저장됩니다.
-            </div>
-            <input id="geminiKeyInput" type="password" placeholder="API 키 붙여넣기..." style="width:100%;padding:8px 10px;border:1px solid #ddd;border-radius:8px;font-size:12px;font-family:monospace;box-sizing:border-box;margin-bottom:8px;">
-            <button onclick="saveGeminiKey()" style="background:var(--g2);color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;">저장</button>
-          </div>
           <button class="btn-f" id="dietSubmitBtn" style="display:none;" onclick="submitDiet()">식단 업로드</button>
         </div>
         <div class="sec-t" style="margin-top:4px;">식단 기록</div>
@@ -939,129 +931,16 @@ window.highlightMuscle=function(key){
     </div>`;
 };
 
-// ── DIET / GEMINI ──
-// API 키는 localStorage에 저장 (코드에 넣지 않음)
-function getGeminiKey(){return localStorage.getItem('np_gemini_key')||'';}
-function setGeminiKey(k){localStorage.setItem('np_gemini_key',k.trim());}
-window.saveGeminiKey=function(){
-  const k=document.getElementById('geminiKeyInput').value.trim();
-  if(!k){showToast('API 키를 입력해 주세요');return;}
-  setGeminiKey(k);
-  document.getElementById('geminiSetupBox').style.display='none';
-  showToast('API 키가 저장되었습니다 ✓');
-};
-
-function extractJson(text) {
-  // ```json ... ``` 또는 ``` ... ``` 블록 제거
-  let clean = text.replace(/```json/gi,'').replace(/```/g,'').trim();
-  // 중괄호 블록만 추출 (앞뒤 불필요한 텍스트 제거)
-  const match = clean.match(/\{[\s\S]*\}/);
-  if(match) clean = match[0];
-  return JSON.parse(clean);
-}
-
+// ── DIET ──
 window.handleDietUpload=function(e){
   const file=e.target.files[0];if(!file)return;
   dietFileData=file;
   const reader=new FileReader();
-  reader.onload=async ev=>{
-    const dataUrl=ev.target.result;
-    const base64=dataUrl.split(',')[1];
-    const mimeType=file.type||'image/jpeg';
-
+  reader.onload=ev=>{
     document.getElementById('dietPreview').innerHTML=`
-      <img src="${dataUrl}" style="width:100%;border-radius:12px;max-height:220px;object-fit:cover;margin-bottom:12px;">
-      <div id="aiCalResult" style="background:var(--cream);border-radius:14px;padding:14px;font-size:13px;color:var(--mid);display:flex;align-items:center;gap:10px;">
-        <span style="font-size:20px;animation:spin 1s linear infinite;display:inline-block;">⏳</span>
-        <span>AI가 음식을 분석하고 있어요...</span>
-      </div>`;
+      <img src="${ev.target.result}" style="width:100%;border-radius:12px;max-height:220px;object-fit:cover;margin-bottom:4px;">
+      <div style="font-size:11px;color:var(--mid);text-align:center;margin-bottom:8px;">강사가 칼로리를 분석하고 코멘트를 남겨드립니다 🌿</div>`;
     document.getElementById('dietSubmitBtn').style.display='block';
-
-    // API 키 가져오기
-    const GEMINI_API_KEY=getGeminiKey();
-    if(!GEMINI_API_KEY){
-      aiKcal=null;
-      document.getElementById('geminiSetupBox').style.display='block';
-      return;
-    }
-    document.getElementById('geminiSetupBox').style.display='none';
-
-    try{
-      const res=await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${encodeURIComponent(GEMINI_API_KEY)}`,
-        {
-          method:'POST',
-          headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({
-            contents:[{parts:[
-              {inline_data:{mime_type:mimeType, data:base64}},
-              {text:'이 식단 사진에 있는 음식들을 분석해서 칼로리와 주요 영양소를 추정해주세요. 반드시 JSON 형식으로만 답하세요. 다른 설명 없이 순수 JSON만. 형식: {"foods":["음식명1","음식명2"],"totalKcal":숫자,"protein":숫자,"carbs":숫자,"fat":숫자,"breakdown":[{"name":"음식명","kcal":숫자,"amount":"1인분","protein":숫자,"carbs":숫자,"fat":숫자}]}'}
-            ]}],
-            generationConfig:{temperature:0.2,maxOutputTokens:1024}
-          })
-        }
-      );
-
-      if(!res.ok){
-        const errBody=await res.text();
-        throw new Error(`HTTP ${res.status}: ${errBody}`);
-      }
-
-      const data=await res.json();
-
-      // 응답 구조 검증
-      if(data.error){throw new Error(data.error.message||JSON.stringify(data.error));}
-      if(!data.candidates||!data.candidates[0]){throw new Error('응답에 candidates가 없습니다.');}
-
-      const rawText=data.candidates[0].content.parts[0].text;
-      const json=extractJson(rawText);
-
-      aiKcal=json.totalKcal;
-      document.getElementById('aiCalResult').innerHTML=`
-        <div style="margin-bottom:10px;display:flex;align-items:center;gap:6px;">
-          <span style="font-size:16px;">🤖</span>
-          <span style="font-size:12px;font-weight:700;color:var(--g2);">AI 칼로리 분석 완료</span>
-        </div>
-        <div style="font-family:'Inter',sans-serif;font-size:28px;font-weight:800;color:var(--stone);margin-bottom:12px;">${json.totalKcal} <span style="font-size:14px;font-weight:500;color:var(--mid);">kcal</span></div>
-        ${(json.protein||json.carbs||json.fat)?`
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:12px;">
-          <div style="background:#EBF5F0;border-radius:10px;padding:8px;text-align:center;">
-            <div style="font-size:10px;color:var(--mid);margin-bottom:2px;">단백질</div>
-            <div style="font-size:15px;font-weight:800;color:#2A7A5A;">${json.protein||0}g</div>
-          </div>
-          <div style="background:#FFF8E7;border-radius:10px;padding:8px;text-align:center;">
-            <div style="font-size:10px;color:var(--mid);margin-bottom:2px;">탄수화물</div>
-            <div style="font-size:15px;font-weight:800;color:#C4A055;">${json.carbs||0}g</div>
-          </div>
-          <div style="background:#FEF0EE;border-radius:10px;padding:8px;text-align:center;">
-            <div style="font-size:10px;color:var(--mid);margin-bottom:2px;">지방</div>
-            <div style="font-size:15px;font-weight:800;color:#D9634E;">${json.fat||0}g</div>
-          </div>
-        </div>`:''}
-        <div style="display:flex;flex-direction:column;gap:5px;margin-bottom:10px;">
-          ${(json.breakdown||[]).map(b=>`
-            <div style="background:var(--white);padding:7px 10px;border-radius:10px;font-size:11px;border:1px solid rgba(0,0,0,0.06);display:flex;justify-content:space-between;align-items:center;">
-              <span>${b.name}${b.amount?` <span style="color:var(--mid);">· ${b.amount}</span>`:''}</span>
-              <span style="display:flex;gap:6px;align-items:center;">
-                ${b.protein?`<span style="color:#2A7A5A;">P ${b.protein}g</span>`:''}
-                <b style="color:var(--g2);">${b.kcal}kcal</b>
-              </span>
-            </div>`).join('')}
-        </div>
-        <div style="font-size:11px;color:var(--mid);">
-          🍽 인식된 음식: ${(json.foods||[]).join(', ')}
-        </div>`;
-    }catch(err){
-      aiKcal=null;
-      console.error('Gemini 오류:', err);
-      const isAuthErr=err.message&&(err.message.includes('400')||err.message.includes('401')||err.message.includes('403'));
-      document.getElementById('aiCalResult').innerHTML=`
-        <div style="font-size:12px;color:var(--red);font-weight:600;margin-bottom:6px;">⚠ AI 분석 실패</div>
-        <div style="font-size:11px;background:#FEF0EE;padding:8px 10px;border-radius:8px;word-break:break-all;margin-bottom:8px;color:#C0392B;">${err.message}</div>
-        ${isAuthErr?`<div style="font-size:11px;color:var(--mid);line-height:1.8;">API 키가 잘못되었습니다.<br>
-          <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener" style="color:var(--g2);font-weight:600;">새 API 키 발급받기 →</a></div>`
-          :`<div style="font-size:11px;color:var(--mid);">네트워크 오류 또는 API 키 오류입니다. 수동으로 칼로리를 입력해 주세요.</div>`}`;
-    }
   };
   reader.readAsDataURL(file);
 };
@@ -1072,7 +951,7 @@ window.submitDiet=async function(){
     const storageRef=ref(storage,`diets/${mData.name}_${todayKey}_${Date.now()}`);
     await uploadBytes(storageRef,dietFileData);
     const url=await getDownloadURL(storageRef);
-    await addDoc(collection(db,'diets'),{memberName:mData.name,memberId:memberId||'',date:todayKey,imageUrl:url,status:'pending',createdAt:new Date().toISOString(),kcal:aiKcal||null});
+    await addDoc(collection(db,'diets'),{memberName:mData.name,memberId:memberId||'',date:todayKey,imageUrl:url,status:'pending',createdAt:new Date().toISOString()});
     document.getElementById('dietPreview').innerHTML='';
     document.getElementById('dietSubmitBtn').style.display='none';
     document.getElementById('dietFile').value='';
