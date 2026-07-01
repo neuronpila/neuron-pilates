@@ -264,12 +264,14 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--cream);color:var(--s
 </head>
 <body>
 
-<!-- ── 로그인 ── -->
+<!-- ── 로그인 / 회원가입 ── -->
 <div id="onboardScreen">
   <img class="ob-logo" src="logo.png" alt="뉴런필라테스">
   <div class="ob-name">뉴런필라테스</div>
   <div class="ob-sub">Neuron Pilates Studio<br>강사 피드백 · 레슨 기록 · 홈트레이닝</div>
-  <div class="ob-card">
+
+  <!-- 로그인 카드 -->
+  <div class="ob-card" id="loginCard">
     <div>
       <label class="ob-label">이름</label>
       <input class="ob-input" id="loginName" placeholder="등록된 이름 입력" autocomplete="username">
@@ -280,6 +282,32 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--cream);color:var(--s
     </div>
     <div id="loginError" style="color:#ff8080;font-size:12px;text-align:center;margin-top:12px;margin-bottom:-4px;display:none;">이름 또는 비밀번호가 올바르지 않습니다</div>
     <button class="ob-btn" id="loginBtn" onclick="login()" style="margin-top:20px;">로그인 →</button>
+    <div style="text-align:center;margin-top:16px;">
+      <span style="font-size:12px;color:rgba(255,255,255,0.5);">처음 이용하시나요?</span>
+      <button onclick="showRegister()" style="background:none;border:none;color:rgba(255,255,255,0.85);font-size:12px;font-weight:700;cursor:pointer;padding:0 0 0 6px;text-decoration:underline;">회원가입</button>
+    </div>
+  </div>
+
+  <!-- 회원가입 카드 -->
+  <div class="ob-card" id="registerCard" style="display:none;">
+    <div style="font-size:15px;font-weight:700;color:white;margin-bottom:18px;text-align:center;letter-spacing:-0.3px;">신규 회원가입</div>
+    <div>
+      <label class="ob-label">이름</label>
+      <input class="ob-input" id="regName" placeholder="실명 입력" autocomplete="name">
+    </div>
+    <div style="margin-top:14px;">
+      <label class="ob-label">비밀번호 (4자리)</label>
+      <input class="ob-input" id="regPin" type="tel" inputmode="numeric" maxlength="4" placeholder="• • • •" style="letter-spacing:10px;font-size:22px;text-align:center;" autocomplete="new-password">
+    </div>
+    <div style="margin-top:14px;">
+      <label class="ob-label">비밀번호 확인</label>
+      <input class="ob-input" id="regPin2" type="tel" inputmode="numeric" maxlength="4" placeholder="• • • •" style="letter-spacing:10px;font-size:22px;text-align:center;" autocomplete="new-password">
+    </div>
+    <div id="regError" style="color:#ff8080;font-size:12px;text-align:center;margin-top:12px;margin-bottom:-4px;display:none;"></div>
+    <button class="ob-btn" id="regBtn" onclick="register()" style="margin-top:20px;">가입하기 →</button>
+    <div style="text-align:center;margin-top:16px;">
+      <button onclick="showLogin()" style="background:none;border:none;color:rgba(255,255,255,0.85);font-size:12px;font-weight:700;cursor:pointer;padding:0;text-decoration:underline;">← 로그인으로 돌아가기</button>
+    </div>
   </div>
 </div>
 
@@ -605,6 +633,46 @@ function setHdrAvatar(avatar) {
 }
 
 function saveLocal(){localStorage.setItem('np_member_v3',JSON.stringify(mData));}
+
+// ── LOGIN / REGISTER TOGGLE ──
+window.showRegister=function(){
+  document.getElementById('loginCard').style.display='none';
+  document.getElementById('registerCard').style.display='block';
+  document.getElementById('regName').focus();
+};
+window.showLogin=function(){
+  document.getElementById('registerCard').style.display='none';
+  document.getElementById('loginCard').style.display='block';
+  document.getElementById('loginName').focus();
+};
+
+// ── REGISTER ──
+window.register=async function(){
+  const name=document.getElementById('regName').value.trim();
+  const pin=document.getElementById('regPin').value.trim();
+  const pin2=document.getElementById('regPin2').value.trim();
+  const errEl=document.getElementById('regError');
+  errEl.style.display='none';
+  if(!name){showToast('이름을 입력해 주세요');return;}
+  if(pin.length!==4||!/^\d{4}$/.test(pin)){errEl.textContent='비밀번호는 숫자 4자리여야 합니다';errEl.style.display='block';return;}
+  if(pin!==pin2){errEl.textContent='비밀번호가 일치하지 않습니다';errEl.style.display='block';return;}
+  const btn=document.getElementById('regBtn');
+  btn.textContent='가입 중...';btn.disabled=true;
+  try{
+    const snap=await getDocs(query(collection(db,'members'),where('name','==',name)));
+    if(!snap.empty){errEl.textContent='이미 등록된 이름입니다. 로그인을 이용해 주세요';errEl.style.display='block';return;}
+    const todayKey=today.toISOString().slice(0,10);
+    const ref=await addDoc(collection(db,'members'),{
+      name,pin,avatar:'🧘',class:'',phone:'',
+      lessonTotal:0,lessonUsed:0,note:'',createdAt:todayKey
+    });
+    memberId=ref.id;
+    mData={name,pin,avatar:'🧘',class:'',phone:'',lessonTotal:0,lessonUsed:0,note:'',createdAt:todayKey,memberId,bookings:[]};
+    localStorage.setItem('np_auth',JSON.stringify({memberId}));
+    saveLocal();showToast('가입이 완료되었습니다!');initApp();
+  }catch(e){showToast('가입 중 오류가 발생했습니다');}
+  finally{btn.textContent='가입하기 →';btn.disabled=false;}
+};
 
 // ── LOGIN ──
 window.login=async function(){
