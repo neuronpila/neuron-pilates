@@ -1020,6 +1020,7 @@ function initBodyMap() {
     el.addEventListener('click',()=>{
       const key=el.dataset.key,label=el.dataset.label;
       selectedBodyKey=key;
+      if(!(key in fbBodyComments))fbBodyComments[key]='';
       document.querySelectorAll('.fb-muscle-part').forEach(e=>{if(e.dataset.key===key)e.style.fill=BODY_COLORS[key]||'#4A90D9';});
       document.getElementById('bodyCommentArea').style.display='block';
       document.getElementById('bodyCommentLabel').textContent='💪 '+label+' 코멘트';
@@ -1030,7 +1031,7 @@ function initBodyMap() {
   document.getElementById('bodyCommentSaveBtn').addEventListener('click',()=>{
     if(!selectedBodyKey)return;
     const val=document.getElementById('bodyCommentInput').value.trim();
-    if(val)fbBodyComments[selectedBodyKey]=val;else delete fbBodyComments[selectedBodyKey];
+    fbBodyComments[selectedBodyKey]=val;
     renderBodyCommentList();
     document.getElementById('bodyCommentArea').style.display='none';
     showToast('코멘트 저장됨 ✓');
@@ -1038,7 +1039,7 @@ function initBodyMap() {
 }
 function renderBodyCommentList(){
   const list=document.getElementById('bodyCommentList');
-  const keys=Object.keys(fbBodyComments);
+  const keys=Object.keys(fbBodyComments).filter(k=>fbBodyComments[k]);
   if(!keys.length){list.innerHTML='';return;}
   list.innerHTML=keys.map(k=>{
     const label=document.querySelector(`.fb-muscle-part[data-key="${k}"]`)?.dataset.label||k;
@@ -1122,7 +1123,7 @@ async function runGeminiAnalysis(imgUrl,thumbBase64){
     }
 
     const apiRes=await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(key)}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${encodeURIComponent(key)}`,
       {method:'POST',headers:{'Content-Type':'application/json'},signal:ctrl.signal,
         body:JSON.stringify({
           contents:[{parts:[

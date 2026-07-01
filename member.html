@@ -716,7 +716,7 @@ function renderFbCard(fb,preview=false){
   const note=preview?fb.note.slice(0,70)+(fb.note.length>70?'...':''):fb.note;
   const bc=fb.bodyComments||{};
   const hasBody=Object.keys(bc).length>0;
-  const getColor=key=>bc[key]?BCOLORS[key]:'#E8E4DC';
+  const getColor=key=>(key in bc)?BCOLORS[key]:'#E8E4DC';
   const bodyHtml=hasBody?`
     <div style="display:flex;gap:10px;margin:10px 0;align-items:flex-start;">
       <div>
@@ -744,7 +744,7 @@ function renderFbCard(fb,preview=false){
         </svg>
       </div>
       <div style="flex:1;">
-        ${Object.keys(bc).map(k=>`<div style="margin-bottom:5px;padding:5px 8px;background:var(--cream);border-radius:8px;border-left:3px solid ${BCOLORS[k]||'#ccc'};"><div style="font-size:10px;font-weight:700;color:${BCOLORS[k]||'#333'};">${BLABELS[k]||k}</div><div style="font-size:11px;line-height:1.5;">${bc[k]}</div></div>`).join('')}
+        ${Object.keys(bc).filter(k=>bc[k]).map(k=>`<div style="margin-bottom:5px;padding:5px 8px;background:var(--cream);border-radius:8px;border-left:3px solid ${BCOLORS[k]||'#ccc'};"><div style="font-size:10px;font-weight:700;color:${BCOLORS[k]||'#333'};">${BLABELS[k]||k}</div><div style="font-size:11px;line-height:1.5;">${bc[k]}</div></div>`).join('')}
       </div>
     </div>`:'';
   return`<div class="fb-card">
