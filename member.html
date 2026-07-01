@@ -264,41 +264,22 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--cream);color:var(--s
 </head>
 <body>
 
-<!-- ── 온보딩 ── -->
+<!-- ── 로그인 ── -->
 <div id="onboardScreen">
   <img class="ob-logo" src="logo.png" alt="뉴런필라테스">
   <div class="ob-name">뉴런필라테스</div>
   <div class="ob-sub">Neuron Pilates Studio<br>강사 피드백 · 레슨 기록 · 홈트레이닝</div>
-
   <div class="ob-card">
-    <!-- 아바타 선택 -->
-    <div class="ob-av-section">
-      <label class="ob-label">나의 아바타</label>
-      <div class="ob-av-preview-row">
-        <div class="ob-av-preview" id="obAvPreview">🧘</div>
-        <div class="ob-av-btns">
-          <button class="ob-av-btn" onclick="toggleObEmojiGrid()">😊 이모지 선택</button>
-          <label class="ob-av-btn" for="obAvatarFile" style="cursor:pointer;">📷 사진 업로드</label>
-          <input type="file" id="obAvatarFile" accept="image/*" style="display:none;" onchange="handleObAvatarFile(event)">
-        </div>
-      </div>
-      <div id="obEmojiGrid" style="display:none;">
-        <div class="ob-emoji-grid" id="obEmojiGridInner"></div>
-      </div>
-      <input type="hidden" id="obAvatarVal" value="🧘">
-    </div>
-
     <div>
-      <label class="ob-label">내 이름</label>
-      <input class="ob-input" id="inputName" placeholder="예: 이소연">
+      <label class="ob-label">이름</label>
+      <input class="ob-input" id="loginName" placeholder="등록된 이름 입력" autocomplete="username">
     </div>
-    <div>
-      <label class="ob-label">수강 클래스</label>
-      <select class="ob-input" id="inputClass" style="margin-bottom:20px;">
-        <option>기초 필라테스</option><option>코어 강화</option><option>바디밸런스</option><option>저녁 플로우</option>
-      </select>
+    <div style="margin-top:16px;">
+      <label class="ob-label">비밀번호 (4자리)</label>
+      <input class="ob-input" id="loginPin" type="tel" inputmode="numeric" maxlength="4" placeholder="• • • •" style="letter-spacing:10px;font-size:22px;text-align:center;" autocomplete="current-password">
     </div>
-    <button class="ob-btn" onclick="startApp()">시작하기 →</button>
+    <div id="loginError" style="color:#ff8080;font-size:12px;text-align:center;margin-top:12px;margin-bottom:-4px;display:none;">이름 또는 비밀번호가 올바르지 않습니다</div>
+    <button class="ob-btn" id="loginBtn" onclick="login()" style="margin-top:20px;">로그인 →</button>
   </div>
 </div>
 
@@ -501,6 +482,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--cream);color:var(--s
       <select class="fi" id="profClass"><option>기초 필라테스</option><option>코어 강화</option><option>바디밸런스</option><option>저녁 플로우</option></select>
     </div>
     <button class="btn-f" onclick="saveProfile()">저장</button>
+    <button class="btn-o" onclick="logout()" style="margin-top:4px;color:var(--red);border-color:var(--red);">로그아웃</button>
     <button class="btn-o" onclick="closeModal('profileModal')">취소</button>
   </div>
 </div>
@@ -624,17 +606,34 @@ function setHdrAvatar(avatar) {
 
 function saveLocal(){localStorage.setItem('np_member_v3',JSON.stringify(mData));}
 
-// ── ONBOARDING ──
-window.startApp = async function(){
-  const name=document.getElementById('inputName').value.trim();
+// ── LOGIN ──
+window.login=async function(){
+  const name=document.getElementById('loginName').value.trim();
+  const pin=document.getElementById('loginPin').value.trim();
+  const errEl=document.getElementById('loginError');
+  errEl.style.display='none';
   if(!name){showToast('이름을 입력해 주세요');return;}
-  mData.name=name;mData.class=document.getElementById('inputClass').value;
-  mData.avatar=_obAvatar||'🧘'; // JS 변수에서 읽음
-  mData.bookings=mData.bookings||[];
-  saveLocal();
-  const snap=await getDocs(query(collection(db,'members'),where('name','==',name)));
-  if(!snap.empty){memberId=snap.docs[0].id;mData.memberId=memberId;saveLocal();}
-  initApp();
+  if(!pin){showToast('비밀번호를 입력해 주세요');return;}
+  const btn=document.getElementById('loginBtn');
+  btn.textContent='로그인 중...';btn.disabled=true;
+  try{
+    const snap=await getDocs(query(collection(db,'members'),where('name','==',name)));
+    if(snap.empty){errEl.style.display='block';return;}
+    const mdoc=snap.docs[0];const m=mdoc.data();
+    if(pin!==(m.pin||'0000')){errEl.style.display='block';return;}
+    memberId=mdoc.id;
+    const localAv=mData.avatar;
+    mData={...m,memberId,avatar:localAv||m.avatar||'🧘',bookings:mData.bookings||[]};
+    localStorage.setItem('np_auth',JSON.stringify({memberId}));
+    saveLocal();initApp();
+  }catch(e){showToast('로그인 중 오류가 발생했습니다');}
+  finally{btn.textContent='로그인 →';btn.disabled=false;}
+};
+window.logout=function(){
+  if(!confirm('로그아웃 하시겠습니까?'))return;
+  localStorage.removeItem('np_auth');
+  localStorage.removeItem('np_member_v3');
+  location.reload();
 };
 
 function initApp(){
@@ -1188,7 +1187,21 @@ document.querySelectorAll('.modal-ov').forEach(o=>o.addEventListener('click',e=>
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800);}
 window.showToast=showToast;
 
-if(mData.name)initApp();
+(async function(){
+  const auth=JSON.parse(localStorage.getItem('np_auth')||'null');
+  if(auth&&auth.memberId){
+    try{
+      const snap=await getDoc(doc(db,'members',auth.memberId));
+      if(snap.exists()){
+        memberId=auth.memberId;
+        const m=snap.data();
+        const localAv=mData.avatar;
+        mData={...m,memberId,avatar:localAv||m.avatar||'🧘',bookings:mData.bookings||[]};
+        saveLocal();initApp();return;
+      }
+    }catch(e){}
+  }
+})();
 </script>
 
 <!-- PWA 설치 배너 -->

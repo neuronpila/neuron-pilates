@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pilatesflow-v4';
+const CACHE_NAME = 'pilatesflow-v5';
 const BASE = self.registration.scope;
 const URLS = [
   BASE + 'index.html',
