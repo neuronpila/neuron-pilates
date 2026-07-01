@@ -254,8 +254,8 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--cream);color:var(--s
 .eg-btn.selected{background:var(--gp2);transform:scale(1.15);box-shadow:0 2px 8px rgba(42,122,90,0.3);}
 
 /* ── TOAST ── */
-.toast{position:fixed;bottom:92px;left:50%;transform:translateX(-50%) translateY(12px);background:var(--stone2);color:white;padding:12px 20px;border-radius:14px;font-size:12px;font-weight:500;white-space:nowrap;opacity:0;transition:all 0.25s;z-index:300;box-shadow:0 4px 20px rgba(0,0,0,0.3);}
-.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.toast{position:fixed;bottom:92px;left:50%;transform:translateX(-50%) translateY(12px);background:var(--stone2);color:white;padding:12px 20px;border-radius:14px;font-size:12px;font-weight:500;white-space:nowrap;opacity:0;pointer-events:none;transition:all 0.25s;z-index:300;box-shadow:0 4px 20px rgba(0,0,0,0.3);}
+.toast.show{opacity:1;pointer-events:auto;transform:translateX(-50%) translateY(0);}
 .empty{text-align:center;padding:36px 16px;color:var(--mid);}
 .status-pill{display:inline-flex;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:600;}
 .pill-done{background:var(--gp);color:var(--g2);}

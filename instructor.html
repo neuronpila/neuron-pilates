@@ -303,10 +303,10 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--cream);color:var(--s
 .toast{
   position:fixed;bottom:92px;left:50%;transform:translateX(-50%) translateY(12px);
   background:var(--stone2);color:white;padding:12px 20px;border-radius:14px;
-  font-size:12px;font-weight:500;white-space:nowrap;opacity:0;transition:all 0.25s;
+  font-size:12px;font-weight:500;white-space:nowrap;opacity:0;pointer-events:none;transition:all 0.25s;
   z-index:300;box-shadow:0 4px 20px rgba(0,0,0,0.3);
 }
-.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.toast.show{opacity:1;pointer-events:auto;transform:translateX(-50%) translateY(0);}
 
 /* ── MISC ── */
 .empty{text-align:center;padding:36px 16px;color:var(--mid);}
